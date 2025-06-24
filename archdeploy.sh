@@ -45,7 +45,7 @@ sudo pacman -S --noconfirm \
   polkit-kde-agent hyprland hyprshot hyprlock hypridle waybar pavucontrol \
   network-manager-applet brightnessctl playerctl
 
-echo "Installing yay (AUR helper)..."
+echo "Installing yay and paru(AUR helper)..."
 cd ~
 sudo rm -rf yay
 git clone https://aur.archlinux.org/yay.git
@@ -53,6 +53,14 @@ cd yay
 makepkg -si --noconfirm
 cd ~
 sudo rm -rf yay
+
+cd ~
+sudo rm -rf paru
+git clone https://aur.archlinux.org/paru.git
+cd paru
+makepkg -si --noconfirm
+cd ~
+sudo rm -rf paru
 
 echo "Installing auto-cpufreq..."
 yay -S --noconfirm auto-cpufreq

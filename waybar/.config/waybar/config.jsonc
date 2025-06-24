@@ -43,7 +43,7 @@
   },
 
   "network": {
-    "format-wifi": " ({signalStrength}%)",
+    "format-wifi": " {essid} ({signalStrength}%)",
     "format-ethernet": " {ipaddr}",
     "format-disconnected": "⚠ Disconnected",
     "interval": 5
