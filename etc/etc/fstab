@@ -1,0 +1,24 @@
+# Static information about the filesystems.
+# See fstab(5) for details.
+
+# <file system> <dir> <type> <options> <dump> <pass>
+# /dev/nvme1n1p2
+UUID=11d0ef51-0c90-4af8-9e30-8785c1ae3ff1	/         	btrfs     	rw,relatime,ssd,discard=async,space_cache=v2,subvol=/@	0 0
+
+# /dev/nvme1n1p4
+UUID=2ac183c1-254f-43bf-ba78-f30237b8fba7	/linux-home	btrfs     	rw,relatime,ssd,discard=async,space_cache=v2,subvol=/@home	0 0
+
+# /dev/nvme1n1p1
+UUID=F22C-9327      	/boot     	vfat      	rw,relatime,fmask=0022,dmask=0022,codepage=437,iocharset=ascii,shortname=mixed,utf8,errors=remount-ro	0 2
+
+# /dev/nvme1n1p3
+UUID=72b5391e-78c9-40f9-a307-5a977704b205	none      	swap      	defaults  	0 0
+
+# /dev/nvme0n1p5
+UUID=18D67AF4D67AD20C   /mnt/Programs  ntfs defaults 0 0
+
+# /dev/nvme0n1p6
+UUID=988E67CE8E67A38A   /mnt/Media  ntfs defaults 0 0
+
+# /dev/nvme0n1p7
+ UUID=E87A89CE7A899A48   /mnt/Backups  ntfs defaults 0 0

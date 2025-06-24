@@ -1,0 +1,64 @@
+* {
+  font-family: "JetBrainsMono Nerd Font", monospace;
+  font-size: 13px;
+  border: none;
+  border-radius: 4px;
+  padding: 2px 8px;
+}
+
+window#waybar {
+  background: rgba(30, 30, 46, 0.9);
+  color: #cdd6f4;
+}
+
+#workspaces button {
+  padding: 0 5px;
+  color: #a6e3a1;
+}
+
+#clock {
+  color: #89b4fa;
+}
+
+#battery {
+  color: #fab387;
+}
+
+#network {
+  color: #94e2d5;
+}
+#custom-power {
+color: #f38ba8;
+padding: 0 10px;
+}
+
+#cpu, #memory, #temperature, #disk, #pulseaudio {
+color: #cba6f7;
+padding: 0 6px;
+}
+
+#pulseaudio.muted {
+color: #f38ba8;
+}
+
+#tray {
+padding: 0 5px;
+}
+
+#workspaces button {
+padding: 0 5px;
+color: #a6e3a1;
+background: transparent;
+border: none;
+}
+
+/* Highlight the active (focused) workspace */
+#workspaces button.active {
+color: #1e1e2e;
+background: #a6e3a1;
+}
+
+/* Optional: Style for visible (on any monitor) but inactive */
+#workspaces button.visible {
+background: rgba(166, 227, 161, 0.2);
+}

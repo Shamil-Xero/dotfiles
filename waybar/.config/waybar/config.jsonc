@@ -1,0 +1,88 @@
+{
+  // Waybar configuration with extra features
+  "layer": "top",
+  "position": "top",
+  "height": 30,
+  "modules-left": [
+    "workspaces"
+  ],
+  "modules-center": [
+    "clock"
+  ],
+  "modules-right": [
+    "tray",
+    "network",
+    "pulseaudio",
+    "temperature",
+    "cpu",
+    "memory",
+    "disk",
+    "battery",
+    "custom/power"
+  ],
+
+  "workspaces": {
+    "disable-scroll": false,
+    "on-click": "activate",
+    "on-scroll-up": "hyprctl dispatch workspace e+1",
+    "on-scroll-down": "hyprctl dispatch workspace e-1",
+    "format": "WS {name}"
+  },
+
+  "clock": {
+    "format": " {:%H:%M:%S}",
+    "tooltip-format": " {:%A, %B %d, %Y}",
+    "interval": 1
+  },
+
+  "battery": {
+    "format": " {capacity}%",
+    "format-charging": " {capacity}%",
+    "format-plugged": " {capacity}%",
+    "interval": 10
+  },
+
+  "network": {
+    "format-wifi": " {essid} ({signalStrength}%)",
+    "format-ethernet": " {ipaddr}",
+    "format-disconnected": "⚠ Disconnected",
+    "interval": 5
+  },
+
+  "pulseaudio": {
+    "format": "{icon} {volume}%",
+    "format-muted": " Mute",
+    "on-click": "pavucontrol"
+  },
+
+  "cpu": {
+    "format": " {usage}%",
+    "tooltip": true
+  },
+
+  "memory": {
+    "format": " {used} MiB",
+    "tooltip": true
+  },
+
+  "temperature": {
+    "critical-threshold": 80,
+    "format": " {temperatureC}°C",
+    "tooltip": true
+  },
+
+  "disk": {
+    "format": " {free}",
+    "path": "/",
+    "tooltip": true
+  },
+
+  "custom/power": {
+    "format": "⏻",
+    "tooltip": false,
+    "on-click": "~/.config/waybar/scripts/power-menu.sh",
+    "on-click-right": "systemctl suspend",
+    "on-click-middle": "systemctl reboot",
+    "on-update": "true"
+  }
+}
