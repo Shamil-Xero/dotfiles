@@ -33,6 +33,7 @@ sudo pacman -S --noconfirm base-devel git firefox curl wofi kitty ntfs-3g stow f
 echo "Enabling NetworkManager..."
 sudo pacman -S --noconfirm networkmanager
 sudo systemctl enable NetworkManager.service
+sudo systemctl enable --now NetworkManager
 
 echo "Enabling Bluetooth Services..."
 sudo pacman -S --noconfirm bluez bluez-utils blueman
@@ -43,7 +44,8 @@ sudo pacman -S --noconfirm \
   xdg-desktop-portal xdg-desktop-portal-hyprland wl-clipboard xdg-utils wayland \
   wayland-protocols qt5-wayland qt6-wayland glfw-wayland gtk3 gtk4 dunst slurp uwsm \
   polkit-kde-agent hyprland hyprshot hyprlock hypridle waybar pavucontrol \
-  network-manager-applet brightnessctl playerctl
+  network-manager-applet brightnessctl playerctl mako qt6ct qt5ct kvantum \
+  kde-gtk-config systemsettings
 
 echo "Installing yay and paru(AUR helper)..."
 cd ~
@@ -74,6 +76,11 @@ sudo auto-cpufreq --install
 
 echo "Configuring auto-cpufreq..."
 sudo auto-cpufreq --bluetooth_boot_on
+
+# echo "Creating grub themes..."
+# sudo grub-mkconfig -o /boot/grub/grub.cfg
+
+
 
 # Stop background sudo refresher
 # kill "$SUDO_PID"

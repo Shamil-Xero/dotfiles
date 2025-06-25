@@ -3,13 +3,10 @@
   "layer": "top",
   "position": "top",
   "height": 30,
-  "modules-left": [
-    "workspaces"
-  ],
-  "modules-center": [
-    "clock"
-  ],
+  "modules-left": ["workspaces"],
+  "modules-center": ["clock"],
   "modules-right": [
+    "custom/notification",
     "tray",
     "network",
     "pulseaudio",
@@ -21,6 +18,12 @@
     "custom/power"
   ],
 
+  "custom/notification": {
+    "format": "{}",
+    "exec": "swaync-client --count",
+    "on-click": "sleep 0.1 && swaync-client --toggle-panel",
+    "interval": 5
+  },
   "workspaces": {
     "disable-scroll": false,
     "on-click": "activate",
