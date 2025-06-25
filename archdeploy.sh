@@ -68,11 +68,12 @@ echo "Installing auto-cpufreq..."
 yay -S --noconfirm auto-cpufreq
 sudo auto-cpufreq --install
 
-# echo "Installing tlp(PowerManagement)..."
-#sudo pacman -S --noconfirm tlp tlp-rdw
+echo "Installing tlp(PowerManagement)..."
+sudo pacman -S --noconfirm tlp tlp-rdw
+sudo systemctl enable --now tlp.service
 
-# echo "Installing additional softwares using yay..."
-#sudo -u "$USERNAME" yay -S --noconfirm  brave-bin visual-studio-code tlpui
+echo "Installing additional softwares using yay..."
+sudo -u "$USERNAME" yay -S --noconfirm  brave-bin visual-studio-code tlpui
 
 echo "Configuring auto-cpufreq..."
 sudo auto-cpufreq --bluetooth_boot_on
