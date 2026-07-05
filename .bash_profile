@@ -5,7 +5,7 @@
 [[ -f ~/.bashrc ]] && . ~/.bashrc
 
 if [[ -z $DISPLAY && $XDG_VTNR -eq 1 ]]; then
-	exec start-hyprland
+	uwsm start start-hyprland
 fi
 
 # Hermes Agent — ensure ~/.local/bin is on PATH

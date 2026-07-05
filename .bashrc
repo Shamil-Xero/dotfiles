@@ -7,7 +7,6 @@
 
 alias ls='ls --color=auto'
 alias grep='grep --color=auto'
-alias cd='z'
 PS1='[\u@\h \W]\$ '
 
 # alias i='yay -S --noconfirm --answerdiff=None --answerclean=None'
@@ -19,7 +18,7 @@ alias ps='sudo pacman -Ss'
 alias pq='sudo pacman -Q | grep'
 alias cd='z'
 
-export ADB_HOME=$HOME/Applications/adb
+# export ADB_HOME=$HOME/Applications/adb
 export PATH="$PATH:$ADB_HOME"
 export OBSIDIAN_VAULT_PATH=/mnt/d/RAM
 eval "$(zoxide init bash)"
@@ -29,4 +28,3 @@ export PATH="$HOME/.local/bin:$PATH"
 
 # Added by LM Studio CLI tool (lms)
 export PATH="$PATH:/home/shamil/.lmstudio/bin"
-
