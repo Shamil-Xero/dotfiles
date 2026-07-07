@@ -1,0 +1,36 @@
+/* The main container window */
+#window {
+  background-color: #1e1e2e;
+  color: #25c9c8;
+  font-family: "Fira Code", monospace;
+  font-size: 14px;
+  border: 2px solid #25c9c8;
+  border-radius: 8px;
+}
+
+/* The search text box */
+#input {
+  background-color: #313244;
+  color: #25c9c8;
+  border: none;
+  border-radius: 4px;
+  margin: 10px;
+  padding: 8px;
+}
+
+/* Individual list entries */
+#entry {
+  padding: 5px 10px;
+}
+
+/* The entry currently highlighted/hovered */
+#entry:selected {
+  background-color: #25c9c8;
+  color: #11111b;
+  border-radius: 4px;
+}
+
+/* Spacing out app icons */
+image {
+  margin-right: 10px;
+}

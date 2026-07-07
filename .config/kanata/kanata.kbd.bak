@@ -1,0 +1,33 @@
+(defcfg
+  process-unmapped-keys yes
+)
+
+(defsrc
+  esc  f1   f2   f3   f4   f5   f6   f7   f8   f9  f10  f11  f12          
+  grv  1    2    3    4    5    6    7    8    9    0    -    =    bspc home
+  tab  q    w    e    r    t    y    u    i    o    p    [    ]    \    del
+  caps a    s    d    f    g    h    j    k    l    ;    '    ret       pgup
+  lsft z    x    c    v    b    n    m    ,    .    /    rsft      up   pgdn
+  lctl lmet lalt           spc            ralt rmet rctl    left  down  right
+)
+
+(defalias
+  ;; Caps Lock → Backspace (simple remap)
+  cap bspc
+
+  ;; Right Alt: tap = Space, hold = Right Alt
+  ralt (tap-hold 200 200 spc ralt)
+
+  ;; Left Alt: tap = Left Alt, hold = activate nav layer
+  lalt (tap-hold 200 200 lalt (layer-toggle nav))
+)
+
+(deflayer base
+  @cap @lalt @ralt
+  h    j     k    l  '
+)
+
+(deflayer nav
+  _    _     _
+  left up    down right ret
+)

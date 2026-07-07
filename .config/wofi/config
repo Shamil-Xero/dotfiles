@@ -1,0 +1,14 @@
+# Display mode: 'drun' shows desktop apps, 'run' shows system executables
+mode=drun
+
+# Window properties
+width=500
+height=400
+location=center
+prompt=Search Apps...
+
+# Visual behaviors
+allow_images=true
+image_size=24
+hide_scroll=true
+insensitive=true
