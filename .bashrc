@@ -18,8 +18,6 @@ alias ps='sudo pacman -Ss'
 alias pq='sudo pacman -Q | grep'
 alias cd='z'
 
-# export ADB_HOME=$HOME/Applications/adb
-export PATH="$PATH:$ADB_HOME"
 export OBSIDIAN_VAULT_PATH=/mnt/d/RAM
 eval "$(zoxide init bash)"
 
