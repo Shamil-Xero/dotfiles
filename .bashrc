@@ -11,6 +11,7 @@ PS1='[\u@\h \W]\$ '
 
 # alias i='yay -S --noconfirm --answerdiff=None --answerclean=None'
 alias i='paru -S --noconfirm'
+alias u='paru -R '
 alias s='paru -Ss'
 alias q='paru -Q | grep'
 alias pi='sudo pacman -S --noconfirm'
@@ -18,7 +19,7 @@ alias ps='sudo pacman -Ss'
 alias pq='sudo pacman -Q | grep'
 alias cd='z'
 
-export OBSIDIAN_VAULT_PATH=/mnt/d/RAM
+export OBSIDIAN_VAULT_PATH='/mnt/d/RAM'
 eval "$(zoxide init bash)"
 
 # Hermes Agent — ensure ~/.local/bin is on PATH
