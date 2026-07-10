@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-DEVICE="10.192.246.99:5555"
+DEVICE="10.21.30.163:5555"
 DISPLAY_SIZE="2712x1220"
 
 choice=$(
