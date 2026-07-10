@@ -90,7 +90,7 @@
         "on-click": "~/.config/waybar/scripts/kbd-backlight.sh"
     },
     "pulseaudio": {
-        "format": "{volume}% {icon}",
+        "format": "{icon}",
         "format-bluetooth": "{volume}% {icon}",
         "format-muted": "",
         "format-icons": {
@@ -108,7 +108,7 @@
                 ""
             ]
         },
-        // "tooltip": false,
+        "tooltip-format": "{source_desc} {volume}%",
         "scroll-step": 2,
         "on-click": "pavucontrol",
         "ignored-sinks": [
@@ -116,7 +116,7 @@
         ]
     },
     "wireplumber": {
-        "format": "{volume}% {icon}",
+        "format": "{icon}",
         "format-muted": "",
         "format-icons": {
             "headphone": "",
@@ -131,6 +131,7 @@
                 ""
             ]
         },
+        "tooltip-format": "{source_desc} {volume}%",
         "scroll-step": 2,
         "reverse-scrolling": true,
         "on-click": "pavucontrol",

@@ -58,9 +58,20 @@ tooltip label {
 }
 
 .modules-right {
+  /* min-height: 1rem; */
+  font-size: 2rem;
   padding: 0 4px;
   border-radius: 99px;
   background-color: #2d2e2f;
+}
+
+#wireplumber {
+  font-size: 2rem;
+}
+
+#kbd_backlight {
+  background-color: #3f3f3f;
+  color: white;
 }
 
 /* #battery.charging {
@@ -74,11 +85,6 @@ tooltip label {
   animation-timing-function: steps(24);
   animation-iteration-count: infinite;
   animation-direction: alternate;
-}
-
-#kbd_backlight {
-  background-color: #3f3f3f;
-  color: white;
 }
 
 @keyframes blink {
