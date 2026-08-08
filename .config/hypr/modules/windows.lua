@@ -49,10 +49,37 @@ hl.window_rule({
     float = true,
 })
 
-local function apply_monitor_rules()
-    -- Check if HDMI is connected
-    hdmi_connected = false
+hl.window_rule({
+  name = "Obsidian-blur",
+  match = {
+    class = "obsidian"
+  },
+  opacity = 0.7,
+})
 
+hl.window_rule({
+  name = "Kitty-blur",
+  match = {
+    class = "kitty"
+  },
+  opacity = 0.7,
+})
+
+-- hl.window_rule({
+--   match        = { fullscreen = true },
+--   border_color = "rgb(FF0000) rgb(880808)",
+-- })
+
+hl.layer_rule({
+  name = "Close Rofi when not focus",
+  match = {
+    namespace = "rofi"
+  },
+})
+
+local function apply_monitor_rules()
+    -- Re-detect monitor state to avoid handler ordering issues
+    hdmi_connected = false
     for _, monitor in ipairs(hl.get_monitors()) do
         if monitor.name == "HDMI-A-1" then
             hdmi_connected = true
@@ -61,12 +88,12 @@ local function apply_monitor_rules()
     end
 
     -- Apply workspace rules
-    for ws = 1, 15 do
+    for ws = 1, 10 do
         local target_monitor
         local is_default = false
 
         if hdmi_connected then
-            if ws <= 10 then
+            if ws <= 7 then
                 target_monitor = "HDMI-A-1"
                 is_default = (ws == 1)
                 hl.workspace_rule({
@@ -76,7 +103,7 @@ local function apply_monitor_rules()
                 })
             else
                 target_monitor = "eDP-1"
-                is_default = (ws == 11)
+                is_default = (ws == 8)
                 hl.workspace_rule({
                     workspace = tostring(ws),
                     monitor = target_monitor,
@@ -87,6 +114,11 @@ local function apply_monitor_rules()
             if ws <= 10 then
                 target_monitor = "eDP-1"
                 is_default = (ws == 1)
+                hl.workspace_rule({
+                workspace = tostring(ws),
+                monitor = target_monitor,
+                default = is_default,
+                })
             end
         end
     end
@@ -98,3 +130,9 @@ apply_monitor_rules()
 -- Reapply rules whenever monitors are connected or disconnected
 hl.on("monitor.added", apply_monitor_rules)
 hl.on("monitor.removed", apply_monitor_rules)
+
+-- Delayed reapply to catch monitors that initialize after config parsing
+hl.timer(apply_monitor_rules, {
+    timeout = 1500,
+    type = "oneshot"
+})

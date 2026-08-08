@@ -4,23 +4,23 @@
 
 (defsrc
   caps ralt
-  '
 )
 
 (defalias
-  ;; Caps Lock → Backspace (simple remap)
   cap bspc
-
-  ;; Right Alt: tap = Space, hold = activate nav layer
-  ralt (tap-hold 200 200 spc (layer-toggle nav))
+  ralt spc
 )
 
 (deflayer base
   @cap @ralt
-  '
 )
 
-(deflayer nav
-  _    _
-  ret
+(defoverrides
+  (lctl [) (\)
+  (lctl ]) (lsft \)
+  (lctl ') (ret)
+  (lctl lalt h) (left)
+  (lctl lalt j) (down)
+  (lctl lalt k) (up)
+  (lctl lalt l) (right)
 )

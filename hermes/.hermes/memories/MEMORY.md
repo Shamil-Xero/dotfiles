@@ -1,0 +1,1 @@
+When extracting tasks from Obsidian: prefer direct file read (read_file path/to/Tasks.md) over broad search_files queries. Daily notes use next-day wikilinks [[prev|<<]] - [[next|>>]]; check target date's Tasks section for upcoming work. LaunchPad.md may contain Dataview task aggregations.

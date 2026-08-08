@@ -1,23 +1,23 @@
 * {
   all: unset;
+
   font-family: Monospace, Helvetica, Arial, sans-serif;
-  font-size: 13px;
+  font-size: 12px;
   min-height: 0;
-  min-width: 1rem;
-  margin-left: 5px;
-  margin-right: 5px;
-  margin-top: 1px;
+
+  transition:
+    background-color 150ms ease,
+    color 150ms ease,
+    border-color 150ms ease;
 }
 
-window.eDP-1 * {
+/* window.eDP-1 * {
   font-size: 0.8rem;
-}
+} */
 
 window#waybar {
-  /* background: rgba(0, 0, 0, 0.5); */
-  /* border-bottom: 3px solid rgba(100, 114, 125, 0.5); */
-  color: white;
-  /* min-width: 90%; */
+  background: transparent;
+  color: #d3c6aa;
 }
 
 tooltip {
@@ -34,45 +34,64 @@ tooltip label {
   padding: 4px 4px;
   color: white;
   margin: 4px;
+  /* background-color: black; */
 }
 
 #workspaces button {
-  /* color: transparent; */
   background-color: #2d2e2f;
   padding: 0px 4px;
   border-radius: 99px;
-  /* margin: 0 2px; */
-  min-width: 4px;
+  margin: 4px;
+  min-width: 2rem;
 }
 
 #workspaces button.active {
   font-weight: bold;
   font-size: 1rem;
+  min-width: 36px;
   background-color: #adb4b7;
 }
 
 .modules-center {
-  padding: 0px 4px;
+  margin-top: 5px;
+  padding: 4px;
   border-radius: 99px;
   background-color: #2d2e2f;
 }
 
 .modules-right {
-  /* min-height: 1rem; */
-  font-size: 2rem;
-  padding: 0 4px;
+  margin: 4px 4px;
   border-radius: 99px;
   background-color: #2d2e2f;
 }
-
-#wireplumber {
-  font-size: 2rem;
+.modules-right * {
+  color: white;
+  font-size: 1.2rem;
+  border-radius: 8px;
+  /* margin-left: 4px;
+  margin-right: 4px; */
+  min-width: 1.2rem;
+  padding: 4px;
 }
 
-#kbd_backlight {
+.modules-right > * :hover {
+  background: rgba(139, 182, 243, 0.15);
+  border-radius: 8px;
+}
+#bluetooth {
+  font-size: 1rem;
+}
+
+#tray * {
+  /* background-color: #3f3f3f; */
+  margin: 0;
+  padding: 4px;
+}
+
+/* #kbd_backlight {
   background-color: #3f3f3f;
   color: white;
-}
+} */
 
 /* #battery.charging {
   color: white;

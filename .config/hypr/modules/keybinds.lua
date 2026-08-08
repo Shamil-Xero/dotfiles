@@ -7,7 +7,7 @@ local terminal    = "kitty"
 local fileManager = "dolphin"
 local menu        = "pkill rofi || rofi -show drun"
 local ide         = "code"
-local browser1     = 'zen-browser'
+local browser1     = 'vivaldi'
 local browser2     = 'zen-browser -P "Leisure"'
 -----------------------
 
@@ -18,11 +18,11 @@ local browser2     = 'zen-browser -P "Leisure"'
 
 
 hl.bind("SUPER + Q", hl.dsp.window.close())
-hl.bind("SUPER + ESCAPE", hl.dsp.exec_cmd("command -v hyprshutdown >/dev/null 2>&1 && hyprshutdown || hyprctl dispatch 'hl.dsp.exit()'"))
+hl.bind("SUPER + HOME", hl.dsp.exec_cmd("command -v hyprshutdown >/dev/null 2>&1 && hyprshutdown || hyprctl dispatch 'hl.dsp.exit()'"))
 hl.bind("SUPER + R", hl.dsp.exec_cmd(menu), { release = true })
 hl.bind("SUPER + P", hl.dsp.window.pseudo())
 hl.bind("SUPER + B", hl.dsp.layout("togglesplit"))
-hl.bind("SUPER + F", hl.dsp.window.fullscreen())
+hl.bind("SUPER + F", hl.dsp.window.fullscreen({mode = "fullscreen"}))
 hl.bind("SUPER + SHIFT + F", hl.dsp.window.float())
 
 -- Move focus with mainMod
@@ -81,6 +81,7 @@ hl.bind("SUPER + mouse_up",   hl.dsp.focus({ workspace = "e+1" }))
 
 -- Move/resize windows with mainMod + LMB/RMB and dragging
 hl.bind("SUPER + mouse:272", hl.dsp.window.drag(),   { mouse = true })
+hl.bind("SUPER + mouse:272", hl.dsp.window.drag(),   { mouse = true })
 hl.bind("SUPER + CONTROL_L", hl.dsp.window.drag(), { mouse = true })
 hl.bind("SUPER + mouse:273", hl.dsp.window.resize(), { mouse = true })
 hl.bind("SUPER + ALT_L", hl.dsp.window.resize(), { mouse = true })
@@ -106,25 +107,98 @@ hl.bind("XF86AudioPrev",  hl.dsp.exec_cmd("playerctl previous"),   { locked = tr
 
 -- My Binds
 -- Applications
-hl.bind("SUPER + SHIFT + A", hl.dsp.exec_cmd(browser1))
+-- hl.bind("SUPER + SHIFT + A", hl.dsp.exec_cmd(browser1))
 hl.bind("SUPER + SHIFT + G", hl.dsp.exec_cmd(browser2))
-hl.bind("SUPER + O", hl.dsp.exec_cmd("obsidian"))
-hl.bind("SUPER + D", hl.dsp.exec_cmd(terminal))
+-- hl.bind("SUPER + O", hl.dsp.exec_cmd("obsidian"))
 hl.bind("SUPER + E", hl.dsp.exec_cmd(fileManager))
 
 hl.bind("SUPER + Z", hl.dsp.exec_cmd("~/.config/hypr/scripts/scrcpy-tcpip-app-launcher.sh"))
 hl.bind("SUPER + W", hl.dsp.exec_cmd("pkill -x waybar || waybar >/dev/null 2>&1 &"))
 hl.bind("SUPER + C", hl.dsp.exec_cmd("hyprshot -m output"))
-hl.bind("SUPER + A", hl.dsp.exec_cmd("swaync-client -t"))
+hl.bind("SUPER + N", hl.dsp.exec_cmd("swaync-client -t"))
 
 hl.bind("CONTROL + SHIFT + ALT + D", hl.dsp.exec_cmd("shutdown now"))
 hl.bind("CONTROL + SHIFT + ALT + F", hl.dsp.exec_cmd("reboot"))
 
+hl.bind("SUPER + SHIFT + RIGHT", hl.dsp.window.move({ monitor = "eDP-1"}))
+hl.bind("SUPER + SHIFT + LEFT", hl.dsp.window.move({ monitor = "HDMI-A-1"}))
+
+
 
 hl.bind("SUPER + SHIFT + N", hl.dsp.exec_cmd("swaync-client -R && swaync-client -rs"))
-hl.bind("SUPER + V", hl.dsp.exec_cmd("cliphist list | wofi --dmenu --pre-display-cmd \"echo \'%s\' | cut -f 2\" | cliphist decode | wl-copy"))
-hl.bind("SUPER + TAB", hl.dsp.exec_cmd(menu .. " window"))
-hl.bind("ALT + Tab", function()
-    hl.dispatch(hl.dsp.window.cycle_next())    -- Change focus to another window
-    hl.dispatch(hl.dsp.window.bring_to_top()) -- Bring it to the top
+-- hl.bind("SUPER + V", hl.dsp.exec_cmd("cliphist list | wofi --dmenu --pre-display-cmd \"echo \'%s\' | cut -f 2\" | cliphist decode | wl-copy"))
+hl.bind("SUPER + V", hl.dsp.exec_cmd("cliphist list | rofi -dmenu | cliphist decode | wl-copy"))
+hl.bind("ALT + TAB", hl.dsp.focus({ workspace = "e+1" }))
+hl.bind("SUPER + TAB", hl.dsp.exec_cmd("rofi -show window"))
+
+-- hl.bind("SUPER + TAB", function()
+--     hl.dispatch(hl.dsp.window.cycle_next())    -- Change focus to another window
+--     hl.dispatch(hl.dsp.window.bring_to_top()) -- Bring it to the top
+-- end)
+
+local function cycle_or_launch(class, command)
+    local windows = hl.get_windows()
+    local active = hl.get_active_window()
+
+    local matches = {}
+
+    -- Collect all matching windows
+    for _, w in ipairs(windows) do
+        if w.class == class then
+            table.insert(matches, w)
+        end
+    end
+
+    -- Launch if none exist
+    if #matches == 0 then
+        hl.dispatch(hl.dsp.exec_cmd(command))
+        return
+    end
+
+    -- Focus it if there's only one
+    if #matches == 1 then
+        hl.dispatch(hl.dsp.focus({
+            window = "address:" .. matches[1].address
+        }))
+        return
+    end
+
+    -- Find the active matching window
+    local current = 0
+
+    if active then
+        for i, w in ipairs(matches) do
+            if w.address == active.address then
+                current = i
+                break
+            end
+        end
+    end
+
+    -- If another app is focused, start from the first match
+    local next = (current % #matches) + 1
+
+    hl.dispatch(hl.dsp.focus({
+        window = "address:" .. matches[next].address
+    }))
+end
+
+hl.bind("SUPER + SHIFT + D", function()
+    cycle_or_launch("codium", "codium")
 end)
+
+-- hl.bind("SUPER + T", function()
+--     cycle_or_launch("kitty", "kitty")
+-- end)
+
+hl.bind("SUPER + T", hl.dsp.exec_cmd(terminal))
+
+hl.bind("SUPER + O", function()
+    cycle_or_launch("obsidian", "obsidian")
+end)
+
+hl.bind("SUPER + A", function()
+    cycle_or_launch("vivaldi-stable", "vivaldi-stable")
+end)
+
+hl.bind("SUPER + SHIFT + A", hl.dsp.exec_cmd(browser1))

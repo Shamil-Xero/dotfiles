@@ -1,0 +1,9 @@
+{
+  "last_report_path": "/home/shamil/.hermes/logs/curator/20260723-120502",
+  "last_run_at": "2026-07-23T12:05:02.352041+00:00",
+  "last_run_duration_seconds": 0.790895,
+  "last_run_summary": "auto: no changes; llm: skipped (consolidation off)",
+  "last_run_summary_shown_at": null,
+  "paused": false,
+  "run_count": 1
+}

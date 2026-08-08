@@ -1,0 +1,222 @@
+* {
+  all: unset;
+
+  font-family: Monospace, Helvetica, Arial, sans-serif;
+  font-size: 12px;
+  min-height: 0;
+
+  transition:
+    background-color 150ms ease,
+    color 150ms ease,
+    border-color 150ms ease;
+}
+
+window#waybar {
+  background: transparent;
+  color: #d3c6aa;
+}
+
+/* ----------------------------------------
+ * Tooltip
+ * ---------------------------------------- */
+
+tooltip {
+  background: rgba(39, 46, 51, 0.96);
+  border: 1px solid #4f5b58;
+  border-radius: 12px;
+  padding: 8px;
+}
+
+tooltip label {
+  color: #d3c6aa;
+}
+
+/* ----------------------------------------
+ * Workspaces
+ * ---------------------------------------- */
+
+#workspaces {
+  margin: 4px;
+  padding: 4px;
+}
+
+#workspaces button {
+  background: #2d353b;
+  color: #d3c6aa;
+
+  padding: 4px 10px;
+  margin: 0 2px;
+
+  min-width: 28px;
+  border-radius: 999px;
+}
+
+#workspaces button:hover {
+  background: rgba(122, 168, 159, 0.18);
+}
+
+#workspaces button.active {
+  background: #7fbbb3;
+  color: #272e33;
+  font-weight: bold;
+}
+
+#workspaces button.urgent {
+  background: #e67e80;
+  color: #272e33;
+}
+
+/* ----------------------------------------
+ * Module Groups
+ * ---------------------------------------- */
+
+.modules-left,
+.modules-center,
+.modules-right {
+  margin: 4px;
+  padding: 4px 8px;
+
+  background: #2d353b;
+  border-radius: 999px;
+}
+
+/* ----------------------------------------
+ * Individual Modules
+ * ---------------------------------------- */
+
+.modules-left > *,
+.modules-center > *,
+.modules-right > * {
+  color: #d3c6aa;
+
+  padding: 4px 8px;
+  margin: 0 2px;
+
+  border-radius: 8px;
+}
+
+.modules-left > *:hover,
+.modules-center > *:hover,
+.modules-right > *:hover {
+  background: rgba(122, 168, 159, 0.18);
+}
+
+/* ----------------------------------------
+ * Clock
+ * ---------------------------------------- */
+
+#clock {
+  font-weight: 600;
+}
+
+/* ----------------------------------------
+ * Tray
+ * ---------------------------------------- */
+
+#tray {
+  padding: 0 4px;
+}
+
+#tray > .passive {
+  opacity: 0.7;
+}
+
+#tray > .needs-attention {
+  background: rgba(230, 126, 128, 0.2);
+}
+
+/* ----------------------------------------
+ * Bluetooth
+ * ---------------------------------------- */
+
+#bluetooth {
+  color: #7fbbb3;
+}
+
+#bluetooth.disabled {
+  color: #859289;
+}
+
+/* ----------------------------------------
+ * Network
+ * ---------------------------------------- */
+
+#network.disconnected {
+  color: #e67e80;
+}
+
+/* ----------------------------------------
+ * Pulseaudio
+ * ---------------------------------------- */
+
+#pulseaudio.muted {
+  color: #859289;
+}
+
+/* ----------------------------------------
+ * Battery
+ * ---------------------------------------- */
+
+#battery.warning {
+  color: #dbbc7f;
+}
+
+#battery.critical {
+  color: #e67e80;
+  animation: blink 0.8s steps(2) infinite alternate;
+}
+
+@keyframes blink {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0.45;
+  }
+}
+
+/* ----------------------------------------
+ * Power Menu
+ * ---------------------------------------- */
+
+#custom-powermenu {
+  font-size: 16px;
+}
+
+#custom-powermenu:hover {
+  background: rgba(230, 126, 128, 0.18);
+  color: #e67e80;
+}
+
+/* ----------------------------------------
+ * Optional Module Colors
+ * ---------------------------------------- */
+
+#cpu {
+  color: #a7c080;
+}
+
+#memory {
+  color: #dbbc7f;
+}
+
+#temperature {
+  color: #e69875;
+}
+
+#disk {
+  color: #83c092;
+}
+
+#backlight {
+  color: #d699b6;
+}
+
+#idle_inhibitor.activated {
+  color: #83c092;
+}
+
+#keyboard-state {
+  color: #7fbbb3;
+}

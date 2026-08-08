@@ -14,15 +14,14 @@ hl.on("hyprland.start", function ()
     hl.exec_cmd("swaync")
     hl.exec_cmd("hyprsunset")
     hl.exec_cmd("hyprctl setcursor 18")
-    hl.exec_cmd("kdeconnectd")
-    hl.exec_cmd("kdeconnect-indicator")
+    hl.exec_cmd("kdeconnectd & kdeconnect-indicator")
     hl.exec_cmd("checkupdates-notify")
     hl.exec_cmd("wl-paste --type text --watch cliphist store")
     hl.exec_cmd("wl-paste --type image --watch cliphist store")
     hl.exec_cmd("wl-clip-persist --clipboard regular")
 
     hl.timer(function()
-        hl.exec_cmd("hyprctl hyprsunset gamma 80")
+        hl.exec_cmd("hyprctl hyprsunset gamma_max 69")
     end, {
         timeout = 1000,
         type = "oneshot"
