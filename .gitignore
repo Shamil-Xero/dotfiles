@@ -23,3 +23,15 @@ Thumbs.db
 *.swp
 *.swo
 *~
+
+# Hermes Configuration (Whitelist)
+hermes/.hermes/*
+!hermes/.hermes/skills/
+!hermes/.hermes/SOUL.md
+!hermes/.hermes/memories/
+!hermes/.hermes/.env
+!hermes/.hermes/config.yaml
+!hermes/.hermes/auth.json
+!hermes/.hermes/sessions/
+!hermes/.hermes/kanban.db
+!hermes/.hermes/hooks/
