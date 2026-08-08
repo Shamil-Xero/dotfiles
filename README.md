@@ -16,6 +16,7 @@ A curated collection of dotfiles, configurations, and scripts for a modern, slee
 | **Notifications** | [Swaync](https://github.com/ErikReider/SwayNotificationCenter) | Modern notification center with widgets and control center options. |
 | **Power Management** | [TLP](https://linrunner.de/tlp/) & [tlpui](https://github.com/dresden-mitte/tlpui) | Advanced power saving configurations with a GTK user interface. |
 | **Boot Loader Themes** | [GRUB Themes](https://www.gnu.org/software/grub/) | Beautiful customized themes (Cyberpunk-V, CyberGRUB-2077, ROG, Vimix, etc.). |
+| **AI Agent** | Hermes | Intelligent local AI agent configured with custom skills, memories, and tracking. |
 
 ---
 
@@ -36,6 +37,7 @@ A curated collection of dotfiles, configurations, and scripts for a modern, slee
 ├── archdeploy.sh         # System installation & package deployment script
 ├── backgrounds/          # System wallpapers and lock screen backgrounds
 ├── fstab                 # Reference filesystem mount table
+├── hermes/               # Hermes AI Agent config, skills, and memory
 └── grub/                 # Bootloader configuration and visual themes
     └── themes/           # Custom GRUB themes (e.g. CyberGRUB-2077, ROG, Vimix)
 ```
@@ -87,6 +89,16 @@ The custom Kanata configuration (`.config/kanata/kanata.kbd`) enables advanced l
 * Tap-Hold behaviors on key modifiers.
 * Layers configuration for coding/navigation productivity.
 * Daemon auto-starts to map keys globally at the driver level.
+
+---
+
+## 🤖 Hermes AI Agent
+This repository tracks the configuration and persistent memory for my local **Hermes Agent**. To avoid cluttering the repository with heavy cache files, a strict `.gitignore` whitelist is used that only tracks the essentials:
+* `SOUL.md` & `config.yaml` - Core system prompt, personality, and settings.
+* `skills/` & `hooks/` - Custom scripts and integrations.
+* `memories/` & `sessions/` - Important context and chat history.
+* `auth.json` & `.env` - Service credentials.
+* `kanban.db` - Internal task tracker.
 
 ---
 
