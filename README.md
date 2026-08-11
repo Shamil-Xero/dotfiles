@@ -23,24 +23,53 @@ A curated collection of dotfiles, configurations, and scripts for a modern, slee
 ## 📁 Repository Structure
 
 ```text
-├── .bash_profile         # Bash login configuration
-├── .bashrc               # Bash interactive shell configuration
-├── .config/              # Core configuration directory
-│   ├── hypr/             # Hyprland, hypridle, hyprlock, and hyprpaper configs
-│   ├── kanata/           # Kanata key remapping scripts
-│   ├── kitty/            # Kitty terminal setup
-│   ├── rofi/             # Rofi menus and styles
-│   ├── swaync/           # Sway Notification Center configuration
-│   ├── tlpui/            # TLP UI settings
-│   ├── waybar/           # Waybar layout and stylesheets
-│   └── wofi/             # Wofi menus
-├── archdeploy.sh         # System installation & package deployment script
-├── backgrounds/          # System wallpapers and lock screen backgrounds
-├── fstab                 # Reference filesystem mount table
-├── hermes/               # Hermes AI Agent config, skills, and memory
-└── grub/                 # Bootloader configuration and visual themes
-    └── themes/           # Custom GRUB themes (e.g. CyberGRUB-2077, ROG, Vimix)
+dotfiles/
+├── shell/                    # Stow package: .bashrc, .bash_profile, .gitconfig
+├── hypr/                     # Stow package: Hyprland, hypridle, hyprlock, hyprpaper
+│   └── .config/hypr/
+├── kitty/                    # Stow package: Kitty terminal
+│   └── .config/kitty/
+├── waybar/                   # Stow package: Waybar status bar
+│   └── .config/waybar/
+├── fish/                     # Stow package: Fish shell
+│   └── .config/fish/
+├── kanata/                   # Stow package: Kanata keyboard remapper
+│   └── .config/kanata/
+├── rofi/                     # Stow package: Rofi launcher
+│   └── .config/rofi/
+├── wofi/                     # Stow package: Wofi launcher
+│   └── .config/wofi/
+├── swaync/                   # Stow package: Notification center
+│   └── .config/swaync/
+├── tlpui/                    # Stow package: TLP UI settings
+│   └── .config/tlpui/
+├── colorprofile/             # Stow package: Display ICC profile
+│   └── .config/
+│
+├── packages/                 # Package lists for backup/restore
+│   ├── core.txt              #   Essential system packages
+│   ├── desktop.txt           #   Hyprland desktop environment
+│   ├── networking.txt        #   Network & Bluetooth
+│   ├── audio.txt             #   PipeWire audio stack
+│   ├── multimedia.txt        #   Media & entertainment
+│   ├── development.txt       #   Dev tools & Docker
+│   ├── nvidia.txt            #   NVIDIA GPU drivers
+│   ├── apps.txt              #   User applications
+│   ├── flatpak.txt           #   Flatpak apps (auto-generated)
+│   └── services.txt          #   Systemd services to enable
+│
+├── backgrounds/              # Wallpapers and lock screen images
+├── grub/                     # GRUB bootloader themes (archival)
+├── hermes/                   # Hermes AI Agent config and data
+├── docker/                   # Docker reference configs
+├── fstab                     # Reference filesystem mount table
+│
+├── archdeploy.sh             # 🚀 Deploy/restore on a fresh Arch install
+├── archbackup.sh             # 💾 Backup current system state
+└── README.md
 ```
+
+Each top-level directory (shell, hypr, kitty, etc.) is a **GNU Stow package** — it mirrors the target directory structure so you can selectively symlink only the configs you need.
 
 ---
 
@@ -49,43 +78,58 @@ A curated collection of dotfiles, configurations, and scripts for a modern, slee
 > [!WARNING]
 > These configuration files are tailored to my specific hardware setup (including NVIDIA drivers). Make sure to inspect the scripts and configuration files before running them on your system.
 
-### 1. Prerequisite Packages
-The deployment script is designed for **Arch Linux**. It will automatically update your system, enable NetworkManager and Bluetooth, set up `yay`/`paru` AUR helpers, install Hyprland, and configure power savings.
-
-### 2. Run the Deployment Script
-Run the automated installation script to install the dependencies:
+### Quick Start (Fresh Arch Install)
 
 ```bash
+# 1. Clone the repo
+git clone https://github.com/Shamil-Xero/dotfiles.git ~/dotfiles
+cd ~/dotfiles
+
+# 2. Run the deployment wizard
 chmod +x archdeploy.sh
 ./archdeploy.sh
 ```
 
-### 3. Deploying Dotfiles with GNU Stow
-These dotfiles are organized to be deployed using [GNU Stow](https://www.gnu.org/software/stow/). Ensure `stow` is installed and run it from the root of this repository:
+The deployment script runs an **interactive wizard** where you select:
+1. **Package groups** to install (core, desktop, networking, audio, etc.)
+2. **Configs** to symlink (hypr, kitty, waybar, etc.)
+3. **Systemd services** to enable
+4. **fstab entries** for disk mounts (shows `lsblk -f` for reference)
+5. **Optional extras** (backgrounds, NVIDIA, Flatpak)
+
+After confirmation, everything installs automatically with live status output.
+
+### Backing Up Your System
 
 ```bash
-# Symlink configurations to your ~/.config directory
-stow .
+# Captures packages, services, configs, and fstab into the repo
+./archbackup.sh
+
+# Preview what would change without modifying files
+./archbackup.sh --dry-run
 ```
 
-### 4. Customizing GRUB Themes
-Navigate to `grub/themes` to explore and install the bootloader themes:
+### Stow Usage (Manual)
+
+Each config can be individually managed with GNU Stow:
 
 ```bash
-cd grub/themes
-sudo ./install.sh
+# Symlink a specific config
+stow -d ~/dotfiles -t ~ hypr
+
+# Remove a specific config
+stow -d ~/dotfiles -t ~ -D kitty
+
+# Symlink all configs
+for pkg in shell hypr kitty waybar fish kanata rofi wofi swaync tlpui colorprofile; do
+    stow -d ~/dotfiles -t ~ "$pkg"
+done
 ```
-Choose from themes like:
-* `Cyberpunk-V`
-* `CyberGRUB-2077`
-* `ROG`
-* `Vimix`
-* `Xenlism-Arch`
 
 ---
 
 ## 🎹 Keyboard Layout (Kanata)
-The custom Kanata configuration (`.config/kanata/kanata.kbd`) enables advanced layout behaviors:
+The custom Kanata configuration (`kanata/.config/kanata/kanata.kbd`) enables advanced layout behaviors:
 * Tap-Hold behaviors on key modifiers.
 * Layers configuration for coding/navigation productivity.
 * Daemon auto-starts to map keys globally at the driver level.
@@ -103,6 +147,6 @@ This repository tracks the configuration and persistent memory for my local **He
 ---
 
 ## 🎨 Visual Preview & Customization
-* **Hyprland:** Configured with custom bindings, animations, window rules, and workspace gestures. See the configs in [hyprland.lua](file:///home/shamil/dotfiles/.config/hypr/hyprland.lua).
-* **Wallpapers:** Check the [backgrounds](file:///home/shamil/dotfiles/backgrounds) folder for high-resolution graphics matching the themes.
-* **Waybar:** Layout styles and configurations are defined under [waybar/config.jsonc](file:///home/shamil/dotfiles/.config/waybar/config.jsonc).
+* **Hyprland:** Configured with custom bindings, animations, window rules, and workspace gestures. See the configs in `hypr/.config/hypr/`.
+* **Wallpapers:** Check the `backgrounds/` folder for high-resolution graphics matching the themes.
+* **Waybar:** Layout styles and configurations are defined under `waybar/.config/waybar/`.

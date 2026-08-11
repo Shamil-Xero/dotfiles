@@ -1,89 +1,620 @@
 #!/bin/bash
-set -e  # Exit on error
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  archdeploy.sh — Arch Linux Dotfiles Restore/Deploy Script     ║
+# ║  Interactive wizard → Automatic execution → Summary → Reboot   ║
+# ╚══════════════════════════════════════════════════════════════════╝
+set -euo pipefail
 
-# Log file (optional)
-LOG="/var/log/arch_deploy.log"
-exec > >(tee -a "$LOG") 2>&1
-
-# Prompt for sudo once
-# if ! sudo -v; then
-#   echo "Sudo privileges are required to run this script."
-#   exit 1
-# fi
-
-# Keep sudo alive
-# ( while true; do sudo -n true; sleep 60; done ) &
-# SUDO_PID=$!
-
+# ── Configuration ──────────────────────────────────────────────────
+DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+LOG_FILE="$HOME/.dotfiles_deploy.log"
+DRY_RUN=false
 USERNAME=$(whoami)
 
-echo "Starting Arch Linux deployment..."
+# Available package categories
+PACKAGE_CATEGORIES=(core desktop networking audio multimedia development nvidia apps)
 
-echo "Updating system..."
-sudo pacman -Syu --noconfirm
+# Available stow packages
+STOW_PACKAGES=(shell hypr kitty waybar fish kanata rofi wofi swaync tlpui colorprofile)
 
-echo "Installing essential packages..."
-sudo pacman -S --noconfirm base-devel git firefox curl wofi kitty ntfs-3g stow flatpak nvidia-utils nvidia-settings
+# Stow package descriptions
+declare -A STOW_DESCRIPTIONS=(
+    [shell]=".bashrc, .bash_profile, .gitconfig"
+    [hypr]="Hyprland, hypridle, hyprlock, hyprpaper"
+    [kitty]="Kitty terminal emulator"
+    [waybar]="Waybar status bar"
+    [fish]="Fish shell config"
+    [kanata]="Kanata keyboard remapper"
+    [rofi]="Rofi application launcher"
+    [wofi]="Wofi application launcher"
+    [swaync]="Sway Notification Center"
+    [tlpui]="TLP UI settings"
+    [colorprofile]="Display color profile (ICC)"
+)
 
+# Package category descriptions
+declare -A CATEGORY_DESCRIPTIONS=(
+    [core]="Essential system packages"
+    [desktop]="Hyprland desktop environment"
+    [networking]="Network & Bluetooth"
+    [audio]="PipeWire audio stack"
+    [multimedia]="Media & entertainment apps"
+    [development]="Dev tools & Docker"
+    [nvidia]="NVIDIA GPU drivers"
+    [apps]="User applications"
+)
 
-# echo "Installing ublock Origin for firefox..."
-# wget https://addons.mozilla.org/firefox/downloads/latest/ublock-origin/addon-607454-latest.xpi -O ublock.xpi
-# firefox --install-addon ./ublock.xpi
+# ── Colors ─────────────────────────────────────────────────────────
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+CYAN='\033[0;36m'
+MAGENTA='\033[0;35m'
+BOLD='\033[1m'
+DIM='\033[2m'
+NC='\033[0m'
 
-echo "Enabling NetworkManager..."
-sudo pacman -S --noconfirm networkmanager
-sudo systemctl enable NetworkManager.service
-sudo systemctl enable --now NetworkManager
+# ── Helpers ────────────────────────────────────────────────────────
+log() { echo -e "${BLUE}[$(date '+%H:%M:%S')]${NC} $*" | tee -a "$LOG_FILE"; }
+step() { echo -e "${CYAN}${BOLD}$*${NC}" | tee -a "$LOG_FILE"; }
+success() { echo -e "         ${GREEN}✓${NC} $*" | tee -a "$LOG_FILE"; }
+warn() { echo -e "         ${YELLOW}⚠${NC} $*" | tee -a "$LOG_FILE"; }
+info() { echo -e "         ${DIM}→${NC} $*" | tee -a "$LOG_FILE"; }
+fail() { echo -e "         ${RED}✗${NC} $*" | tee -a "$LOG_FILE"; }
 
-echo "Enabling Bluetooth Services..."
-sudo pacman -S --noconfirm bluez bluez-utils blueman
-sudo systemctl enable --now bluetooth.service
+run_or_dry() {
+    if $DRY_RUN; then
+        info "${DIM}[dry-run]${NC} $*"
+        return 0
+    else
+        eval "$@"
+    fi
+}
 
-echo "Installing Hyprland and tools..."
-sudo pacman -S --noconfirm \
-  xdg-desktop-portal xdg-desktop-portal-hyprland wl-clipboard xdg-utils wayland \
-  wayland-protocols qt5-wayland qt6-wayland glfw-wayland gtk3 gtk4 dunst slurp uwsm \
-  polkit-kde-agent hyprland hyprshot hyprlock hypridle waybar pavucontrol \
-  network-manager-applet brightnessctl playerctl mako qt6ct qt5ct kvantum \
-  kde-gtk-config systemsettings
+count_packages() {
+    local file="$DOTFILES_DIR/packages/$1.txt"
+    if [[ -f "$file" ]]; then
+        grep -cv '^#\|^$' "$file" 2>/dev/null || echo 0
+    else
+        echo 0
+    fi
+}
 
-echo "Installing yay and paru(AUR helper)..."
-cd ~
-sudo rm -rf yay
-git clone https://aur.archlinux.org/yay.git
-cd yay
-makepkg -si --noconfirm
-cd ~
-sudo rm -rf yay
+# ── Parse arguments ────────────────────────────────────────────────
+for arg in "$@"; do
+    case "$arg" in
+        --dry-run) DRY_RUN=true ;;
+        --help|-h)
+            echo "Usage: archdeploy.sh [--dry-run] [--help]"
+            echo ""
+            echo "Deploys Arch Linux dotfiles and packages on a fresh installation."
+            echo "All user interactions happen upfront in a wizard, then the deployment"
+            echo "runs automatically until completion."
+            echo ""
+            echo "Options:"
+            echo "  --dry-run   Preview what would happen without making changes"
+            echo "  --help      Show this help message"
+            exit 0
+            ;;
+    esac
+done
 
-cd ~
-sudo rm -rf paru
-git clone https://aur.archlinux.org/paru.git
-cd paru
-makepkg -si --noconfirm
-cd ~
-sudo rm -rf paru
+# ══════════════════════════════════════════════════════════════════
+# PHASE A: INTERACTIVE WIZARD
+# ══════════════════════════════════════════════════════════════════
+clear
+echo ""
+echo -e "${CYAN}${BOLD}╔══════════════════════════════════════════════════════════════╗${NC}"
+echo -e "${CYAN}${BOLD}║           Arch Linux Deployment Wizard                      ║${NC}"
+echo -e "${CYAN}${BOLD}╚══════════════════════════════════════════════════════════════╝${NC}"
+echo ""
+if $DRY_RUN; then
+    echo -e "  ${YELLOW}${BOLD}▸ DRY RUN MODE — no changes will be made${NC}"
+    echo ""
+fi
+echo -e "  ${DIM}All selections will be made upfront. Once you confirm,${NC}"
+echo -e "  ${DIM}the deployment will run automatically until completion.${NC}"
+echo ""
 
-echo "Installing auto-cpufreq..."
-yay -S --noconfirm auto-cpufreq
-sudo auto-cpufreq --install
+# ── Helper: Toggle menu ───────────────────────────────────────────
+# Usage: toggle_menu "title" items_array descriptions_array selected_array
+# Modifies the selected_array in-place
+toggle_menu() {
+    local title="$1"
+    local -n _items=$2
+    local -n _descs=$3
+    local -n _selected=$4
+    
+    while true; do
+        echo ""
+        echo -e "  ${BOLD}${title}${NC}"
+        echo -e "  ${DIM}$(printf '─%.0s' {1..55})${NC}"
+        
+        for i in "${!_items[@]}"; do
+            local item="${_items[$i]}"
+            local desc="${_descs[$item]:-}"
+            local count=""
+            
+            # If it's a package category, show count
+            if [[ -f "$DOTFILES_DIR/packages/${item}.txt" ]]; then
+                count=" ($(count_packages "$item") pkgs)"
+            fi
+            
+            if [[ "${_selected[$i]}" == "1" ]]; then
+                echo -e "    ${GREEN}[x]${NC} ${BOLD}$((i+1)).${NC} ${item}${count}${DIM} — ${desc}${NC}"
+            else
+                echo -e "    ${DIM}[ ]${NC} ${BOLD}$((i+1)).${NC} ${item}${count}${DIM} — ${desc}${NC}"
+            fi
+        done
+        
+        echo ""
+        echo -e "  ${DIM}Enter numbers to toggle (e.g. 1 3 5), 'a' for all, 'n' for none${NC}"
+        echo -e "  ${DIM}Press Enter when done${NC}"
+        read -rp "  > " input
+        
+        [[ -z "$input" ]] && break
+        
+        if [[ "$input" == "a" ]]; then
+            for i in "${!_items[@]}"; do _selected[$i]="1"; done
+            continue
+        elif [[ "$input" == "n" ]]; then
+            for i in "${!_items[@]}"; do _selected[$i]="0"; done
+            continue
+        fi
+        
+        for num in $input; do
+            if [[ "$num" =~ ^[0-9]+$ ]] && (( num >= 1 && num <= ${#_items[@]} )); then
+                local idx=$((num - 1))
+                if [[ "${_selected[$idx]}" == "1" ]]; then
+                    _selected[$idx]="0"
+                else
+                    _selected[$idx]="1"
+                fi
+            fi
+        done
+    done
+}
 
-echo "Installing tlp(PowerManagement)..."
-sudo pacman -S --noconfirm tlp tlp-rdw
-sudo systemctl enable --now tlp.service
+# ── Step 1: Select package groups ─────────────────────────────────
+echo -e "${MAGENTA}${BOLD}  ┌─ Step 1/5: Package Groups ──────────────────────────────┐${NC}"
 
-echo "Installing additional softwares using yay..."
-sudo -u "$USERNAME" yay -S --noconfirm  brave-bin visual-studio-code tlpui
+# Initialize all selected by default
+declare -a pkg_selected=()
+for i in "${!PACKAGE_CATEGORIES[@]}"; do
+    pkg_selected[$i]="1"
+done
 
-echo "Configuring auto-cpufreq..."
-sudo auto-cpufreq --bluetooth_boot_on
+toggle_menu "Select package groups to install:" PACKAGE_CATEGORIES CATEGORY_DESCRIPTIONS pkg_selected
 
-# echo "Creating grub themes..."
-# sudo grub-mkconfig -o /boot/grub/grub.cfg
+# ── Step 2: Select configs to symlink ─────────────────────────────
+echo ""
+echo -e "${MAGENTA}${BOLD}  ┌─ Step 2/5: Config Symlinks ─────────────────────────────┐${NC}"
 
+declare -a stow_selected=()
+for i in "${!STOW_PACKAGES[@]}"; do
+    stow_selected[$i]="1"
+done
 
+toggle_menu "Select configs to symlink:" STOW_PACKAGES STOW_DESCRIPTIONS stow_selected
 
-# Stop background sudo refresher
-# kill "$SUDO_PID"
+# ── Step 3: Services ──────────────────────────────────────────────
+echo ""
+echo -e "${MAGENTA}${BOLD}  ┌─ Step 3/5: Systemd Services ────────────────────────────┐${NC}"
 
-echo "Arch Linux deployment complete!"
+SERVICES_FILE="$DOTFILES_DIR/packages/services.txt"
+declare -a system_services=()
+declare -a user_services=()
+current_section=""
+
+if [[ -f "$SERVICES_FILE" ]]; then
+    while IFS= read -r line; do
+        [[ "$line" =~ ^#.*$ || -z "$line" ]] && continue
+        if [[ "$line" == "[system]" ]]; then
+            current_section="system"
+        elif [[ "$line" == "[user]" ]]; then
+            current_section="user"
+        elif [[ "$current_section" == "system" ]]; then
+            system_services+=("$line")
+        elif [[ "$current_section" == "user" ]]; then
+            user_services+=("$line")
+        fi
+    done < "$SERVICES_FILE"
+fi
+
+echo ""
+echo -e "  ${BOLD}The following services will be enabled:${NC}"
+echo ""
+echo -e "  ${BOLD}System services:${NC}"
+for svc in "${system_services[@]}"; do
+    echo -e "    ${GREEN}•${NC} $svc"
+done
+echo ""
+echo -e "  ${BOLD}User services:${NC}"
+for svc in "${user_services[@]}"; do
+    echo -e "    ${GREEN}•${NC} $svc"
+done
+echo ""
+
+enable_services=true
+read -rp "  Enable these services? [Y/n]: " svc_confirm
+if [[ "$svc_confirm" =~ ^[Nn]$ ]]; then
+    enable_services=false
+fi
+
+# ── Step 4: fstab Configuration ───────────────────────────────────
+echo ""
+echo -e "${MAGENTA}${BOLD}  ┌─ Step 4/5: Filesystem Configuration ──────────────────┐${NC}"
+
+declare -a fstab_entries=()
+configure_fstab=false
+
+echo ""
+echo -e "  ${BOLD}Current block devices:${NC}"
+echo ""
+lsblk -f 2>/dev/null | sed 's/^/    /'
+echo ""
+
+read -rp "  Configure fstab mount entries? [y/N]: " fstab_confirm
+if [[ "$fstab_confirm" =~ ^[Yy]$ ]]; then
+    configure_fstab=true
+    echo ""
+    echo -e "  ${DIM}Enter mount entries. Type 'done' when finished.${NC}"
+    echo -e "  ${DIM}Format: UUID  MOUNTPOINT  FSTYPE  OPTIONS${NC}"
+    echo -e "  ${DIM}Example: 8A1ADCA51ADC8F95  /mnt/d  ntfs3  defaults,noatime,rw,uid=1000,gid=1000${NC}"
+    echo ""
+    
+    while true; do
+        read -rp "  fstab> " fstab_input
+        [[ "$fstab_input" == "done" || -z "$fstab_input" ]] && break
+        fstab_entries+=("$fstab_input")
+        success "Added: $fstab_input"
+    done
+fi
+
+# ── Step 5: Optional Extras ───────────────────────────────────────
+echo ""
+echo -e "${MAGENTA}${BOLD}  ┌─ Step 5/5: Optional Extras ─────────────────────────────┐${NC}"
+
+# Backgrounds
+echo ""
+read -rp "  Symlink ~/backgrounds → dotfiles/backgrounds? [Y/n]: " bg_confirm
+symlink_backgrounds=true
+if [[ "$bg_confirm" =~ ^[Nn]$ ]]; then
+    symlink_backgrounds=false
+fi
+
+# NVIDIA envycontrol
+configure_nvidia=false
+# Check if nvidia was selected in packages
+for i in "${!PACKAGE_CATEGORIES[@]}"; do
+    if [[ "${PACKAGE_CATEGORIES[$i]}" == "nvidia" && "${pkg_selected[$i]}" == "1" ]]; then
+        read -rp "  Run envycontrol --switch hybrid after install? [y/N]: " nvidia_confirm
+        if [[ "$nvidia_confirm" =~ ^[Yy]$ ]]; then
+            configure_nvidia=true
+        fi
+        break
+    fi
+done
+
+# Flatpak restore
+restore_flatpak=false
+flatpak_file="$DOTFILES_DIR/packages/flatpak.txt"
+if [[ -f "$flatpak_file" ]]; then
+    flatpak_count=$(grep -cv '^#\|^$' "$flatpak_file" 2>/dev/null || true)
+    if [[ $flatpak_count -gt 0 ]]; then
+        read -rp "  Restore $flatpak_count Flatpak app(s)? [y/N]: " flatpak_confirm
+        if [[ "$flatpak_confirm" =~ ^[Yy]$ ]]; then
+            restore_flatpak=true
+        fi
+    fi
+fi
+
+# ══════════════════════════════════════════════════════════════════
+# CONFIRMATION SUMMARY
+# ══════════════════════════════════════════════════════════════════
+echo ""
+echo -e "${CYAN}${BOLD}╔══════════════════════════════════════════════════════════════╗${NC}"
+echo -e "${CYAN}${BOLD}║                  Deployment Summary                         ║${NC}"
+echo -e "${CYAN}${BOLD}╚══════════════════════════════════════════════════════════════╝${NC}"
+echo ""
+
+# Packages
+total_packages=0
+echo -e "  ${BOLD}Package Groups:${NC}"
+for i in "${!PACKAGE_CATEGORIES[@]}"; do
+    cat="${PACKAGE_CATEGORIES[$i]}"
+    if [[ "${pkg_selected[$i]}" == "1" ]]; then
+        count=$(count_packages "$cat")
+        total_packages=$((total_packages + count))
+        echo -e "    ${GREEN}✓${NC} ${cat} (${count} packages)"
+    else
+        echo -e "    ${DIM}✗ ${cat}${NC}"
+    fi
+done
+echo -e "    ${BOLD}Total: ${total_packages} packages${NC}"
+
+# Configs
+echo ""
+echo -e "  ${BOLD}Config Symlinks:${NC}"
+stow_count=0
+for i in "${!STOW_PACKAGES[@]}"; do
+    pkg="${STOW_PACKAGES[$i]}"
+    if [[ "${stow_selected[$i]}" == "1" ]]; then
+        ((stow_count++))
+        echo -e "    ${GREEN}✓${NC} ${pkg}"
+    else
+        echo -e "    ${DIM}✗ ${pkg}${NC}"
+    fi
+done
+
+# Services
+echo ""
+echo -e "  ${BOLD}Services:${NC}"
+if $enable_services; then
+    echo -e "    ${GREEN}✓${NC} ${#system_services[@]} system + ${#user_services[@]} user services"
+else
+    echo -e "    ${DIM}✗ Skipped${NC}"
+fi
+
+# Extras
+echo ""
+echo -e "  ${BOLD}Extras:${NC}"
+if $configure_fstab; then
+    echo -e "    ${GREEN}✓${NC} fstab — ${#fstab_entries[@]} entries"
+else
+    echo -e "    ${DIM}✗ fstab${NC}"
+fi
+if $symlink_backgrounds; then
+    echo -e "    ${GREEN}✓${NC} Backgrounds symlink"
+else
+    echo -e "    ${DIM}✗ Backgrounds${NC}"
+fi
+if $configure_nvidia; then
+    echo -e "    ${GREEN}✓${NC} NVIDIA envycontrol hybrid"
+else
+    echo -e "    ${DIM}✗ NVIDIA envycontrol${NC}"
+fi
+if $restore_flatpak; then
+    echo -e "    ${GREEN}✓${NC} Flatpak restore ($flatpak_count apps)"
+fi
+
+echo ""
+echo -e "  ${DIM}Log will be saved to: ${LOG_FILE}${NC}"
+echo ""
+
+read -rp "$(echo -e "  ${BOLD}Proceed with deployment? [Y/n]:${NC} ")" final_confirm
+if [[ "$final_confirm" =~ ^[Nn]$ ]]; then
+    echo -e "\n  ${YELLOW}Deployment cancelled.${NC}\n"
+    exit 0
+fi
+
+# ══════════════════════════════════════════════════════════════════
+# PHASE B: AUTOMATIC EXECUTION
+# ══════════════════════════════════════════════════════════════════
+echo ""
+echo -e "${CYAN}${BOLD}══════════════════════════════════════════════════════════════${NC}"
+echo -e "${CYAN}${BOLD}  Deploying...                                               ${NC}"
+echo -e "${CYAN}${BOLD}══════════════════════════════════════════════════════════════${NC}"
+echo ""
+
+# Track totals for summary
+installed_pkg_count=0
+linked_config_count=0
+enabled_svc_count=0
+errors=0
+
+# ── [1/7] System Update ──────────────────────────────────────────
+step "  [1/7] ▸ Updating system..."
+if run_or_dry "sudo pacman -Syu --noconfirm 2>&1 | tail -5"; then
+    success "System updated"
+else
+    fail "System update failed (continuing anyway)"
+    ((errors++))
+fi
+
+# ── [2/7] Install Paru ───────────────────────────────────────────
+step "  [2/7] ▸ Installing paru (AUR helper)..."
+if command -v paru &>/dev/null; then
+    success "paru is already installed"
+else
+    info "Building paru from AUR..."
+    if run_or_dry "
+        sudo pacman -S --needed --noconfirm base-devel git &&
+        PARU_BUILD_DIR=\$(mktemp -d) &&
+        git clone https://aur.archlinux.org/paru.git \"\$PARU_BUILD_DIR/paru\" &&
+        cd \"\$PARU_BUILD_DIR/paru\" &&
+        makepkg -si --noconfirm &&
+        rm -rf \"\$PARU_BUILD_DIR\"
+    "; then
+        success "paru installed successfully"
+    else
+        fail "paru installation failed"
+        ((errors++))
+        echo -e "  ${RED}Cannot continue without an AUR helper. Exiting.${NC}"
+        exit 1
+    fi
+fi
+
+# ── [3/7] Install Packages ───────────────────────────────────────
+step "  [3/7] ▸ Installing packages..."
+
+for i in "${!PACKAGE_CATEGORIES[@]}"; do
+    cat="${PACKAGE_CATEGORIES[$i]}"
+    if [[ "${pkg_selected[$i]}" == "1" ]]; then
+        pkg_file="$DOTFILES_DIR/packages/${cat}.txt"
+        if [[ -f "$pkg_file" ]]; then
+            # Read packages, skip comments and empty lines
+            packages=$(grep -v '^#\|^$' "$pkg_file" | tr '\n' ' ')
+            count=$(echo "$packages" | wc -w)
+            
+            info "Installing ${cat} (${count} packages)..."
+            if run_or_dry "paru -S --needed --noconfirm $packages 2>&1 | tail -3"; then
+                success "${cat} — ${count} packages installed"
+                installed_pkg_count=$((installed_pkg_count + count))
+            else
+                fail "${cat} — some packages may have failed"
+                ((errors++))
+            fi
+        else
+            warn "${cat}.txt not found, skipping"
+        fi
+    fi
+done
+
+# ── [4/7] Symlink Configs ────────────────────────────────────────
+step "  [4/7] ▸ Symlinking configurations..."
+
+for i in "${!STOW_PACKAGES[@]}"; do
+    pkg="${STOW_PACKAGES[$i]}"
+    if [[ "${stow_selected[$i]}" == "1" ]]; then
+        pkg_dir="$DOTFILES_DIR/$pkg"
+        if [[ -d "$pkg_dir" ]]; then
+            info "Stowing ${pkg}..."
+            if run_or_dry "stow -d '$DOTFILES_DIR' -t '$HOME' --adopt '$pkg' 2>&1"; then
+                success "${pkg} — symlinked"
+                ((linked_config_count++))
+            else
+                fail "${pkg} — stow failed (conflicts?)"
+                ((errors++))
+            fi
+        else
+            warn "${pkg} — directory not found"
+        fi
+    fi
+done
+
+# ── [5/7] Enable Services ────────────────────────────────────────
+step "  [5/7] ▸ Enabling systemd services..."
+
+if $enable_services; then
+    # System services
+    for svc in "${system_services[@]}"; do
+        info "Enabling ${svc}..."
+        if run_or_dry "sudo systemctl enable '$svc' 2>&1"; then
+            success "${svc}"
+            ((enabled_svc_count++))
+        else
+            fail "${svc} — failed to enable"
+            ((errors++))
+        fi
+    done
+    
+    # User services
+    for svc in "${user_services[@]}"; do
+        info "Enabling ${svc} (user)..."
+        if run_or_dry "systemctl --user enable '$svc' 2>&1"; then
+            success "${svc} (user)"
+            ((enabled_svc_count++))
+        else
+            fail "${svc} (user) — failed to enable"
+            ((errors++))
+        fi
+    done
+else
+    info "Skipped — services not selected"
+fi
+
+# ── [6/7] Apply Extras ───────────────────────────────────────────
+step "  [6/7] ▸ Applying extras..."
+
+# fstab
+if $configure_fstab && [[ ${#fstab_entries[@]} -gt 0 ]]; then
+    info "Applying fstab entries..."
+    for entry in "${fstab_entries[@]}"; do
+        # Parse: UUID MOUNTPOINT FSTYPE OPTIONS
+        read -r uuid mountpoint fstype options <<< "$entry"
+        fstab_line="UUID=${uuid}  ${mountpoint}  ${fstype}  ${options}  0  0"
+        
+        # Create mount point
+        run_or_dry "sudo mkdir -p '${mountpoint}'"
+        
+        # Append to fstab if not already present
+        if ! grep -q "$uuid" /etc/fstab 2>/dev/null || $DRY_RUN; then
+            run_or_dry "echo '${fstab_line}' | sudo tee -a /etc/fstab > /dev/null"
+            success "fstab: ${mountpoint} (UUID=${uuid:0:8}...)"
+        else
+            warn "fstab: UUID ${uuid:0:8}... already exists, skipping"
+        fi
+    done
+fi
+
+# Backgrounds
+if $symlink_backgrounds; then
+    bg_src="$DOTFILES_DIR/backgrounds"
+    bg_dest="$HOME/backgrounds"
+    if [[ -d "$bg_src" ]]; then
+        if [[ -L "$bg_dest" ]]; then
+            success "backgrounds — already symlinked"
+        else
+            run_or_dry "ln -sfn '$bg_src' '$bg_dest'"
+            success "backgrounds — symlinked to ~/backgrounds"
+        fi
+    else
+        warn "backgrounds directory not found in dotfiles"
+    fi
+fi
+
+# NVIDIA envycontrol
+if $configure_nvidia; then
+    info "Configuring NVIDIA hybrid mode..."
+    if command -v envycontrol &>/dev/null || $DRY_RUN; then
+        if run_or_dry "sudo envycontrol --switch hybrid 2>&1"; then
+            success "NVIDIA set to hybrid mode"
+        else
+            fail "envycontrol failed"
+            ((errors++))
+        fi
+    else
+        warn "envycontrol not found (install nvidia packages first)"
+    fi
+fi
+
+# Flatpak restore
+if $restore_flatpak; then
+    info "Restoring Flatpak apps..."
+    if command -v flatpak &>/dev/null || $DRY_RUN; then
+        while IFS= read -r app_id; do
+            [[ "$app_id" =~ ^#.*$ || -z "$app_id" ]] && continue
+            info "Installing ${app_id}..."
+            run_or_dry "flatpak install -y flathub '$app_id' 2>&1 | tail -1" || true
+        done < "$flatpak_file"
+        success "Flatpak apps restored"
+    else
+        warn "flatpak not installed, skipping"
+    fi
+fi
+
+# ── [7/7] Deployment Complete ─────────────────────────────────────
+step "  [7/7] ▸ Deployment complete!"
+
+# ══════════════════════════════════════════════════════════════════
+# SUMMARY
+# ══════════════════════════════════════════════════════════════════
+echo ""
+echo -e "${GREEN}${BOLD}╔══════════════════════════════════════════════════════════════╗${NC}"
+echo -e "${GREEN}${BOLD}║                  Deployment Summary                         ║${NC}"
+echo -e "${GREEN}${BOLD}╚══════════════════════════════════════════════════════════════╝${NC}"
+echo ""
+echo -e "  ${BOLD}Packages installed:${NC}  ${installed_pkg_count}"
+echo -e "  ${BOLD}Configs symlinked:${NC}   ${linked_config_count}"
+echo -e "  ${BOLD}Services enabled:${NC}    ${enabled_svc_count}"
+if $configure_fstab; then
+    echo -e "  ${BOLD}fstab entries:${NC}       ${#fstab_entries[@]}"
+fi
+if [[ $errors -gt 0 ]]; then
+    echo -e "  ${RED}${BOLD}Errors:${NC}              ${errors}"
+fi
+echo ""
+echo -e "  ${DIM}Log saved to: ${LOG_FILE}${NC}"
+echo ""
+
+# Reboot prompt
+read -rp "$(echo -e "  ${BOLD}Reboot now? [y/N]:${NC} ")" reboot_confirm
+if [[ "$reboot_confirm" =~ ^[Yy]$ ]]; then
+    echo -e "\n  ${CYAN}Rebooting in 3 seconds...${NC}"
+    sleep 3
+    run_or_dry "sudo reboot"
+else
+    echo -e "\n  ${GREEN}Done! Remember to reboot when ready.${NC}\n"
+fi

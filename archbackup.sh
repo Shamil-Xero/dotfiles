@@ -1,0 +1,283 @@
+#!/bin/bash
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  archbackup.sh — Arch Linux Dotfiles Backup Script             ║
+# ║  Captures current system state into the dotfiles repository     ║
+# ╚══════════════════════════════════════════════════════════════════╝
+set -euo pipefail
+
+# ── Configuration ──────────────────────────────────────────────────
+DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+LOG_FILE="$HOME/.dotfiles_backup.log"
+DRY_RUN=false
+
+# Stow packages and their source paths (relative to $HOME/.config/)
+declare -A STOW_CONFIG_PACKAGES=(
+    [hypr]="hypr"
+    [kitty]="kitty"
+    [waybar]="waybar"
+    [fish]="fish"
+    [kanata]="kanata"
+    [rofi]="rofi"
+    [wofi]="wofi"
+    [swaync]="swaync"
+    [tlpui]="tlpui"
+)
+
+SHELL_DOTFILES=(".bashrc" ".bash_profile" ".gitconfig")
+
+PACKAGE_CATEGORIES=(core desktop networking audio multimedia development nvidia apps)
+
+# ── Colors ─────────────────────────────────────────────────────────
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+CYAN='\033[0;36m'
+BOLD='\033[1m'
+DIM='\033[2m'
+NC='\033[0m'
+
+# ── Helpers ────────────────────────────────────────────────────────
+log() { echo -e "${BLUE}[$(date '+%H:%M:%S')]${NC} $*" | tee -a "$LOG_FILE"; }
+success() { echo -e "  ${GREEN}✓${NC} $*" | tee -a "$LOG_FILE"; }
+warn() { echo -e "  ${YELLOW}⚠${NC} $*" | tee -a "$LOG_FILE"; }
+info() { echo -e "  ${DIM}→${NC} $*" | tee -a "$LOG_FILE"; }
+error() { echo -e "  ${RED}✗${NC} $*" | tee -a "$LOG_FILE"; }
+
+run_or_dry() {
+    if $DRY_RUN; then
+        info "${DIM}[dry-run]${NC} $*"
+    else
+        eval "$@"
+    fi
+}
+
+# ── Parse arguments ────────────────────────────────────────────────
+for arg in "$@"; do
+    case "$arg" in
+        --dry-run) DRY_RUN=true ;;
+        --help|-h)
+            echo "Usage: archbackup.sh [--dry-run] [--help]"
+            echo ""
+            echo "Backs up the current system state into the dotfiles repository."
+            echo ""
+            echo "Options:"
+            echo "  --dry-run   Preview changes without modifying any files"
+            echo "  --help      Show this help message"
+            exit 0
+            ;;
+    esac
+done
+
+# ── Banner ─────────────────────────────────────────────────────────
+echo ""
+echo -e "${CYAN}${BOLD}╔══════════════════════════════════════════════════╗${NC}"
+echo -e "${CYAN}${BOLD}║          Arch Linux Dotfiles Backup              ║${NC}"
+echo -e "${CYAN}${BOLD}╚══════════════════════════════════════════════════╝${NC}"
+echo ""
+if $DRY_RUN; then
+    echo -e "${YELLOW}${BOLD}  ▸ DRY RUN MODE — no files will be modified${NC}"
+    echo ""
+fi
+
+# ── Step 1: Update package category lists ──────────────────────────
+log "${BOLD}[1/6]${NC} Updating package lists..."
+
+# Get all explicitly installed packages
+ALL_INSTALLED=$(pacman -Qqe 2>/dev/null | sort)
+
+for category in "${PACKAGE_CATEGORIES[@]}"; do
+    category_file="$DOTFILES_DIR/packages/${category}.txt"
+    if [[ -f "$category_file" ]]; then
+        # Read current category packages
+        current_packages=$(grep -v '^#' "$category_file" | grep -v '^$' | sort)
+        
+        # Check which packages from the category are still installed
+        installed_count=0
+        removed_count=0
+        while IFS= read -r pkg; do
+            [[ -z "$pkg" ]] && continue
+            if echo "$ALL_INSTALLED" | grep -qx "$pkg" 2>/dev/null; then
+                installed_count=$((installed_count + 1))
+            else
+                removed_count=$((removed_count + 1))
+                warn "${category}: ${RED}${pkg}${NC} no longer installed"
+            fi
+        done <<< "$current_packages"
+        
+        success "${category}.txt — ${installed_count} installed, ${removed_count} removed"
+    else
+        warn "${category}.txt not found, skipping"
+    fi
+done
+
+# Check for packages not in any category
+categorized_packages=$(cat "$DOTFILES_DIR"/packages/{core,desktop,networking,audio,multimedia,development,nvidia,apps}.txt 2>/dev/null | grep -v '^#' | grep -v '^$' | sort -u)
+uncategorized=$(comm -23 <(echo "$ALL_INSTALLED") <(echo "$categorized_packages") || true)
+uncategorized_count=$(echo "$uncategorized" | grep -c . 2>/dev/null || echo 0)
+
+if [[ $uncategorized_count -gt 0 ]]; then
+    warn "${uncategorized_count} installed packages not in any category:"
+    echo "$uncategorized" | head -20 | while read -r pkg; do
+        info "  $pkg"
+    done
+    if [[ $uncategorized_count -gt 20 ]]; then
+        info "  ... and $((uncategorized_count - 20)) more"
+    fi
+fi
+
+# ── Step 2: Backup Flatpak apps ────────────────────────────────────
+log "${BOLD}[2/6]${NC} Backing up Flatpak apps..."
+
+if command -v flatpak &>/dev/null; then
+    flatpak_apps=$(flatpak list --app --columns=application 2>/dev/null || true)
+    flatpak_count=$(echo "$flatpak_apps" | grep -c . 2>/dev/null || true)
+    
+    if [[ $flatpak_count -gt 0 ]]; then
+        run_or_dry "echo '# Auto-generated by archbackup.sh' > '$DOTFILES_DIR/packages/flatpak.txt'"
+        run_or_dry "echo '# Flatpak application IDs' >> '$DOTFILES_DIR/packages/flatpak.txt'"
+        run_or_dry "flatpak list --app --columns=application >> '$DOTFILES_DIR/packages/flatpak.txt'"
+        success "Saved ${flatpak_count} Flatpak app(s) to flatpak.txt"
+    else
+        success "No Flatpak apps installed"
+    fi
+else
+    info "Flatpak not installed, skipping"
+fi
+
+# ── Step 3: Capture systemd services ──────────────────────────────
+log "${BOLD}[3/6]${NC} Capturing enabled systemd services..."
+
+if ! $DRY_RUN; then
+    {
+        echo "# Systemd services to enable on restore"
+        echo "# Auto-generated by archbackup.sh on $(date '+%Y-%m-%d %H:%M:%S')"
+        echo "# Lines starting with # are comments"
+        echo ""
+        echo "[system]"
+        systemctl list-unit-files --state=enabled --no-pager --no-legend 2>/dev/null | \
+            awk '{print $1}' | grep -v '^$' | sort
+        echo ""
+        echo "[user]"
+        systemctl --user list-unit-files --state=enabled --no-pager --no-legend 2>/dev/null | \
+            awk '{print $1}' | grep -v '^$' | sort
+    } > "$DOTFILES_DIR/packages/services.txt"
+fi
+
+system_count=$(systemctl list-unit-files --state=enabled --no-pager --no-legend 2>/dev/null | wc -l)
+user_count=$(systemctl --user list-unit-files --state=enabled --no-pager --no-legend 2>/dev/null | wc -l)
+success "Captured ${system_count} system + ${user_count} user services"
+
+# ── Step 4: Sync shell dotfiles ────────────────────────────────────
+log "${BOLD}[4/6]${NC} Syncing shell dotfiles..."
+
+for dotfile in "${SHELL_DOTFILES[@]}"; do
+    src="$HOME/$dotfile"
+    dest="$DOTFILES_DIR/shell/$dotfile"
+    
+    if [[ -f "$src" ]]; then
+        # Resolve symlinks to get the actual file
+        real_src=$(readlink -f "$src")
+        if [[ "$real_src" == "$DOTFILES_DIR/"* ]]; then
+            success "$dotfile — already managed by stow"
+        else
+            run_or_dry "cp '$real_src' '$dest'"
+            success "$dotfile — copied to shell/"
+        fi
+    else
+        warn "$dotfile — not found in \$HOME"
+    fi
+done
+
+# ── Step 5: Sync .config directories ──────────────────────────────
+log "${BOLD}[5/6]${NC} Syncing .config directories..."
+
+for pkg in "${!STOW_CONFIG_PACKAGES[@]}"; do
+    config_name="${STOW_CONFIG_PACKAGES[$pkg]}"
+    src="$HOME/.config/$config_name"
+    dest="$DOTFILES_DIR/$pkg/.config/$config_name"
+    
+    if [[ -d "$src" ]]; then
+        # Check if it's already a symlink managed by stow
+        if [[ -L "$src" ]]; then
+            real_target=$(readlink -f "$src")
+            if [[ "$real_target" == "$DOTFILES_DIR/"* ]]; then
+                success "$config_name — already managed by stow"
+                continue
+            fi
+        fi
+        
+        run_or_dry "rsync -a --delete '$src/' '$dest/'"
+        success "$config_name — synced to $pkg/.config/"
+    else
+        warn "$config_name — not found in ~/.config/"
+    fi
+done
+
+# Handle color profile separately
+icc_src="$HOME/.config/CalibratedDisplayProfile-2.icc"
+icc_dest="$DOTFILES_DIR/colorprofile/.config/CalibratedDisplayProfile-2.icc"
+if [[ -f "$icc_src" ]]; then
+    real_icc=$(readlink -f "$icc_src")
+    if [[ "$real_icc" == "$DOTFILES_DIR/"* ]]; then
+        success "CalibratedDisplayProfile-2.icc — already managed by stow"
+    else
+        run_or_dry "cp '$real_icc' '$icc_dest'"
+        success "CalibratedDisplayProfile-2.icc — copied"
+    fi
+fi
+
+# ── Step 6: Copy fstab ────────────────────────────────────────────
+log "${BOLD}[6/6]${NC} Backing up fstab..."
+
+if [[ -f /etc/fstab ]]; then
+    run_or_dry "cp /etc/fstab '$DOTFILES_DIR/fstab'"
+    success "fstab — copied from /etc/fstab"
+else
+    warn "No /etc/fstab found"
+fi
+
+# ── Git operations ─────────────────────────────────────────────────
+echo ""
+log "${BOLD}Git status:${NC}"
+cd "$DOTFILES_DIR"
+git_status=$(git status --short 2>/dev/null || true)
+
+if [[ -n "$git_status" ]]; then
+    echo "$git_status" | head -20
+    changed_count=$(echo "$git_status" | wc -l)
+    if [[ $changed_count -gt 20 ]]; then
+        info "... and $((changed_count - 20)) more files"
+    fi
+    echo ""
+    
+    if ! $DRY_RUN; then
+        read -rp "$(echo -e "${CYAN}Commit and push changes? [y/N]:${NC} ")" git_confirm
+        if [[ "$git_confirm" =~ ^[Yy]$ ]]; then
+            git add -A
+            git commit -m "backup: $(date '+%Y-%m-%d %H:%M')"
+            
+            if git remote get-url origin &>/dev/null; then
+                git push
+                success "Changes committed and pushed"
+            else
+                success "Changes committed (no remote configured)"
+            fi
+        else
+            info "Skipped git commit"
+        fi
+    else
+        info "[dry-run] Would prompt to commit and push"
+    fi
+else
+    success "No changes detected"
+fi
+
+# ── Summary ────────────────────────────────────────────────────────
+echo ""
+echo -e "${GREEN}${BOLD}╔══════════════════════════════════════════════════╗${NC}"
+echo -e "${GREEN}${BOLD}║              Backup Complete!                    ║${NC}"
+echo -e "${GREEN}${BOLD}╚══════════════════════════════════════════════════╝${NC}"
+echo ""
+echo -e "  Log saved to: ${DIM}${LOG_FILE}${NC}"
+echo ""

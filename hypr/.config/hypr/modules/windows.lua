@@ -54,7 +54,7 @@ hl.window_rule({
   match = {
     class = "obsidian"
   },
-  opacity = 0.7,
+  opacity = 0.8,
 })
 
 hl.window_rule({
@@ -63,6 +63,22 @@ hl.window_rule({
     class = "kitty"
   },
   opacity = 0.7,
+})
+
+hl.window_rule({
+  name = "Vivaldi-blur",
+  match = {
+    class = "vivaldi-stable"
+  },
+  opacity = "0.8 override 0.5 override",
+})
+
+hl.window_rule({
+  name = "YouTube-fullOpacity",
+  match = {
+    title = ".*YouTube.*"
+  },
+  opacity = "1 override"
 })
 
 -- hl.window_rule({

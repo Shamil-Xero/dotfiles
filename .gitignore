@@ -24,6 +24,20 @@ Thumbs.db
 *.swo
 *~
 
+# Cache files
+cache/
+
+# Jellyfin (whitelist — ignore everything, then keep important files)
+docker/jellyfin/cache/
+docker/jellyfin/config/*
+!docker/jellyfin/config/config/
+docker/jellyfin/config/config/.jellyfin-config
+!docker/jellyfin/config/data/
+docker/jellyfin/config/data/*
+!docker/jellyfin/config/data/device.txt
+!docker/jellyfin/config/plugins/
+docker/jellyfin/config/plugins/.jellyfin-plugin
+
 # Hermes Configuration (Whitelist)
 hermes/.hermes/*
 !hermes/.hermes/skills/

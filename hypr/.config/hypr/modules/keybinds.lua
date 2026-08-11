@@ -5,7 +5,8 @@
 -- Set programs that you use
 local terminal    = "kitty"
 local fileManager = "dolphin"
-local menu        = "pkill rofi || rofi -show drun"
+-- local menu        = "pkill rofi || rofi -show drun"
+local menu        = "pkill wofi || wofi --show drun"
 local ide         = "code"
 local browser1     = 'vivaldi'
 local browser2     = 'zen-browser -P "Leisure"'
@@ -19,7 +20,7 @@ local browser2     = 'zen-browser -P "Leisure"'
 
 hl.bind("SUPER + Q", hl.dsp.window.close())
 hl.bind("SUPER + HOME", hl.dsp.exec_cmd("command -v hyprshutdown >/dev/null 2>&1 && hyprshutdown || hyprctl dispatch 'hl.dsp.exit()'"))
-hl.bind("SUPER + R", hl.dsp.exec_cmd(menu), { release = true })
+hl.bind("SUPER + SUPER_L", hl.dsp.exec_cmd(menu), { release = true })
 hl.bind("SUPER + P", hl.dsp.window.pseudo())
 hl.bind("SUPER + B", hl.dsp.layout("togglesplit"))
 hl.bind("SUPER + F", hl.dsp.window.fullscreen({mode = "fullscreen"}))
@@ -62,7 +63,7 @@ hl.bind("SUPER + X", function()
     end
     -- if ws ~= nil then
     --     local ws_name = ws.name
-    --     -- Send a notification showing the active workspace name
+    --     -- Send a notification showing the active workspace namewofi
     --     hl.notification.create({ 
     --         text = "Current Workspace: " .. ws_name, 
     --         timeout = 3000, 
@@ -127,9 +128,9 @@ hl.bind("SUPER + SHIFT + LEFT", hl.dsp.window.move({ monitor = "HDMI-A-1"}))
 
 hl.bind("SUPER + SHIFT + N", hl.dsp.exec_cmd("swaync-client -R && swaync-client -rs"))
 -- hl.bind("SUPER + V", hl.dsp.exec_cmd("cliphist list | wofi --dmenu --pre-display-cmd \"echo \'%s\' | cut -f 2\" | cliphist decode | wl-copy"))
-hl.bind("SUPER + V", hl.dsp.exec_cmd("cliphist list | rofi -dmenu | cliphist decode | wl-copy"))
+hl.bind("SUPER + V", hl.dsp.exec_cmd("cliphist list | wofi -dmenu | cliphist decode | wl-copy"))
 hl.bind("ALT + TAB", hl.dsp.focus({ workspace = "e+1" }))
-hl.bind("SUPER + TAB", hl.dsp.exec_cmd("rofi -show window"))
+hl.bind("SUPER + TAB", hl.dsp.exec_cmd("wofi --show window"))
 
 -- hl.bind("SUPER + TAB", function()
 --     hl.dispatch(hl.dsp.window.cycle_next())    -- Change focus to another window
