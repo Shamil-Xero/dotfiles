@@ -1,0 +1,13 @@
+dolphin
+kate
+libreoffice-fresh
+obsidian
+img2pdf
+neofetch
+scrcpy
+vivaldi
+zen-browser-bin
+antigravity-ide
+apollo
+lm-studio-bin
+vscodium-bin

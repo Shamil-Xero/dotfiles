@@ -1,0 +1,20 @@
+# Systemd services to enable on restore
+# Lines starting with # are comments
+
+[system]
+NetworkManager.service
+NetworkManager-dispatcher.service
+NetworkManager-wait-online.service
+bluetooth.service
+docker.service
+auto-cpufreq.service
+ufw.service
+systemd-timesyncd.service
+
+[user]
+kanata.service
+syncthing.service
+hyprpolkitagent.service
+pipewire.socket
+pipewire-pulse.socket
+wireplumber.service

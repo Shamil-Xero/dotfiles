@@ -1,0 +1,11 @@
+networkmanager
+network-manager-applet
+bluez
+bluez-utils
+blueman
+wpa_supplicant
+ufw
+syncthing
+kdeconnect
+localsend-bin
+sshfs

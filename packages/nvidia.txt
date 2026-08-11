@@ -1,0 +1,5 @@
+nvidia-open
+nvidia-utils
+nvidia-settings
+libva-nvidia-driver
+envycontrol
