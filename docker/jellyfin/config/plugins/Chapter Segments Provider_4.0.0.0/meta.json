@@ -1,0 +1,16 @@
+{
+  "category": "General",
+  "changelog": "- Jellyfin 10.11 support (#9) @crobibero\n- Added additional commercial terms (#8) @JPVenson\n- Fix wrong order of RegEx comments (#13) @mihawk90\n- Add \u0022credits\u0022 to outro segment RegEx (#4) @mihawk90",
+  "description": "Create media segments based on chapters.\n",
+  "guid": "698b6f33-14ca-49b5-9d79-fc3c0ab941f5",
+  "name": "Chapter Segments Provider",
+  "overview": "Create media segments based on chapters.",
+  "owner": "jellyfin",
+  "targetAbi": "10.11.0.0",
+  "timestamp": "2025-10-20T14:29:56.0000000Z",
+  "version": "4.0.0.0",
+  "status": "Active",
+  "autoUpdate": true,
+  "imagePath": "",
+  "assemblies": []
+}

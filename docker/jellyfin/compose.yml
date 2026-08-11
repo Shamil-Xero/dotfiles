@@ -1,0 +1,25 @@
+services:
+  jellyfin:
+    image: jellyfin/jellyfin:latest
+    container_name: jellyfin
+
+    user: "1000:1000"
+
+    ports:
+      - "8096:8096/tcp"
+      - "7359:7359/udp"
+
+    volumes:
+      # Jellyfin configuration
+      - /home/shamil/docker/jellyfin/config:/config
+
+      # Jellyfin cache/transcoding files
+      - /home/shamil/docker/jellyfin/cache:/cache
+
+      # Media on your Windows/NTFS drive
+      - /mnt/d/Movies:/media/movies:rw
+      - /mnt/d/TV Shows:/media/tv:rw
+      - /mnt/d/Anime:/media/anime:rw
+      - /mnt/d/Music:/media/music:rw
+
+    restart: unless-stopped

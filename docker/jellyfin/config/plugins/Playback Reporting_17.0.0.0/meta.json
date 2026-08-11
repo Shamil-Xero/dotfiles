@@ -1,0 +1,16 @@
+{
+  "category": "Administration",
+  "changelog": "- Jellyfin 10.11 support (#108) @crobibero",
+  "description": "Show reports for playback activity",
+  "guid": "5c534381-91a3-43cb-907a-35aa02eb9d2c",
+  "name": "Playback Reporting",
+  "overview": "Collect and show user play statistics",
+  "owner": "jellyfin",
+  "targetAbi": "10.11.0.0",
+  "timestamp": "2026-05-22T14:04:03.0000000Z",
+  "version": "17.0.0.0",
+  "status": "Active",
+  "autoUpdate": true,
+  "imagePath": "/config/plugins/Playback Reporting_17.0.0.0/jellyfin-plugin-playbackreporting.png",
+  "assemblies": []
+}

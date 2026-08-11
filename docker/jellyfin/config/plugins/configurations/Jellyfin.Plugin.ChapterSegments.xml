@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PluginConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <CustomMappingIntro>intro|opening|^OP$</CustomMappingIntro>
+  <CustomMappingPreview>preview|next time on|next on|sneak peek</CustomMappingPreview>
+  <CustomMappingRecap>recap|last time on|last on|previously on</CustomMappingRecap>
+  <CustomMappingOutro>outro|closing|credits|ending|^ED$</CustomMappingOutro>
+  <CustomMappingCommercial>break|ad|advertisement|intermission|advert|commercial</CustomMappingCommercial>
+</PluginConfiguration>

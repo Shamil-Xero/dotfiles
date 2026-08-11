@@ -1,0 +1,16 @@
+{
+  "category": "MoviesAndShows",
+  "changelog": "- Jellyfin 10.11 support (#55) @crobibero",
+  "description": "Get TV metadata from TVmaze\n",
+  "guid": "a4a488d0-17a3-4919-8d82-7f3de4f6b209",
+  "name": "TVmaze",
+  "overview": "Get TV metadata from TVmaze",
+  "owner": "jellyfin",
+  "targetAbi": "10.11.0.0",
+  "timestamp": "2025-10-20T01:26:39.0000000Z",
+  "version": "13.0.0.0",
+  "status": "Active",
+  "autoUpdate": true,
+  "imagePath": "/config/plugins/TVmaze_13.0.0.0/jellyfin-plugin-tvmaze.png",
+  "assemblies": []
+}
