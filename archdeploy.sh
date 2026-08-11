@@ -310,6 +310,22 @@ if [[ -f "$flatpak_file" ]]; then
     fi
 fi
 
+# Auto-login
+echo ""
+read -rp "  Configure TTY1 Auto-login for $USERNAME? [y/N]: " autologin_confirm
+configure_autologin=false
+if [[ "$autologin_confirm" =~ ^[Yy]$ ]]; then
+    configure_autologin=true
+fi
+
+# UFW Rules
+echo ""
+read -rp "  Apply UFW rules (KDE Connect, Jellyfin, Apollo)? [Y/n]: " ufw_confirm
+apply_ufw=true
+if [[ "$ufw_confirm" =~ ^[Nn]$ ]]; then
+    apply_ufw=false
+fi
+
 # ══════════════════════════════════════════════════════════════════
 # CONFIRMATION SUMMARY
 # ══════════════════════════════════════════════════════════════════
@@ -377,6 +393,16 @@ else
 fi
 if $restore_flatpak; then
     echo -e "    ${GREEN}✓${NC} Flatpak restore ($flatpak_count apps)"
+fi
+if $configure_autologin; then
+    echo -e "    ${GREEN}✓${NC} TTY1 Auto-login"
+else
+    echo -e "    ${DIM}✗ TTY1 Auto-login${NC}"
+fi
+if $apply_ufw; then
+    echo -e "    ${GREEN}✓${NC} UFW Rules"
+else
+    echo -e "    ${DIM}✗ UFW Rules${NC}"
 fi
 
 echo ""
@@ -518,6 +544,38 @@ fi
 # ── [6/7] Apply Extras ───────────────────────────────────────────
 step "  [6/7] ▸ Applying extras..."
 
+# Essential User Groups
+info "Configuring essential user groups (input, video)..."
+if run_or_dry "sudo usermod -aG input,video $USERNAME 2>&1"; then
+    success "User added to input and video groups"
+else
+    fail "Failed to add user groups"
+    ((errors++))
+fi
+
+# CPU Governor Conflict (Auto-cpufreq)
+auto_cpufreq_selected=false
+for i in "${!PACKAGE_CATEGORIES[@]}"; do
+    if [[ "${pkg_selected[$i]}" == "1" ]]; then
+        if grep -q "^auto-cpufreq$" "$DOTFILES_DIR/packages/${PACKAGE_CATEGORIES[$i]}.txt" 2>/dev/null; then
+            auto_cpufreq_selected=true
+            break
+        fi
+    fi
+done
+
+if $auto_cpufreq_selected; then
+    info "Resolving CPU governor conflict (masking power-profiles-daemon)..."
+    run_or_dry "sudo systemctl stop power-profiles-daemon.service 2>/dev/null || true"
+    run_or_dry "sudo systemctl disable power-profiles-daemon.service 2>/dev/null || true"
+    if run_or_dry "sudo systemctl mask power-profiles-daemon.service 2>&1"; then
+        success "power-profiles-daemon masked"
+    else
+        fail "Failed to mask power-profiles-daemon"
+        ((errors++))
+    fi
+fi
+
 # fstab
 if $configure_fstab && [[ ${#fstab_entries[@]} -gt 0 ]]; then
     info "Applying fstab entries..."
@@ -582,6 +640,44 @@ if $restore_flatpak; then
         success "Flatpak apps restored"
     else
         warn "flatpak not installed, skipping"
+    fi
+fi
+
+# Auto-login
+if $configure_autologin; then
+    info "Configuring TTY1 Auto-login..."
+    if run_or_dry "
+        sudo mkdir -p /etc/systemd/system/getty@tty1.service.d &&
+        echo '[Service]' | sudo tee /etc/systemd/system/getty@tty1.service.d/autologin.conf >/dev/null &&
+        echo 'ExecStart=' | sudo tee -a /etc/systemd/system/getty@tty1.service.d/autologin.conf >/dev/null &&
+        echo 'ExecStart=-/usr/bin/agetty --autologin $USERNAME --noclear %I \$TERM' | sudo tee -a /etc/systemd/system/getty@tty1.service.d/autologin.conf >/dev/null
+    "; then
+        success "TTY1 Auto-login configured"
+    else
+        fail "Failed to configure TTY1 Auto-login"
+        ((errors++))
+    fi
+fi
+
+# UFW Rules
+if $apply_ufw; then
+    info "Applying UFW rules..."
+    if command -v ufw &>/dev/null || $DRY_RUN; then
+        if run_or_dry "
+            sudo ufw allow 1714:1764/udp >/dev/null &&
+            sudo ufw allow 1714:1764/tcp >/dev/null &&
+            sudo ufw allow 8096/tcp >/dev/null &&
+            sudo ufw allow 47984:48010/tcp >/dev/null &&
+            sudo ufw allow 47984:48010/udp >/dev/null &&
+            sudo ufw reload >/dev/null
+        "; then
+            success "UFW rules applied"
+        else
+            fail "Failed to apply UFW rules"
+            ((errors++))
+        fi
+    else
+        warn "UFW is not installed, skipping rules"
     fi
 fi
 
