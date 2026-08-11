@@ -82,7 +82,7 @@ Each top-level directory (shell, hypr, kitty, etc.) is a **GNU Stow package** â€
 
 ```bash
 # 1. Clone the repo
-git clone https://github.com/Shamil-Xero/dotfiles.git ~/dotfiles
+git clone --depth 1 https://github.com/Shamil-Xero/dotfiles.git ~/dotfiles
 cd ~/dotfiles
 
 # 2. Run the deployment wizard
