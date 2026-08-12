@@ -70,7 +70,7 @@ hl.window_rule({
   match = {
     class = "vivaldi-stable"
   },
-  opacity = "0.8 override 0.5 override",
+  opacity = "0.8 override 0.7 override",
 })
 
 hl.window_rule({
