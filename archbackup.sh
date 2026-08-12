@@ -214,19 +214,6 @@ for pkg in "${!STOW_CONFIG_PACKAGES[@]}"; do
     fi
 done
 
-# Handle color profile separately
-icc_src="$HOME/.config/CalibratedDisplayProfile-2.icc"
-icc_dest="$DOTFILES_DIR/colorprofile/.config/CalibratedDisplayProfile-2.icc"
-if [[ -f "$icc_src" ]]; then
-    real_icc=$(readlink -f "$icc_src")
-    if [[ "$real_icc" == "$DOTFILES_DIR/"* ]]; then
-        success "CalibratedDisplayProfile-2.icc — already managed by stow"
-    else
-        run_or_dry "cp '$real_icc' '$icc_dest'"
-        success "CalibratedDisplayProfile-2.icc — copied"
-    fi
-fi
-
 # ── Step 6: Copy fstab ────────────────────────────────────────────
 log "${BOLD}[6/6]${NC} Backing up fstab..."
 
