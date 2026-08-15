@@ -1,0 +1,24 @@
+(defcfg
+  process-unmapped-keys yes
+  linux-dev-names-include (
+    "HS6209 2.4G Wireless Receiver"
+  )
+)
+
+;; The physical keys on a standard numpad layout
+(defsrc
+  nlck kp/  kp*  kp-
+  kp7  kp8  kp9  kp+
+  kp4  kp5  kp6
+  kp1  kp2  kp3  kprt
+  kp0       kp.
+)
+
+;; The actions triggered when you press those keys
+(deflayer macros
+  XX   C-x  C-c  C-v        ;; NumLock = Disabled, / * - = Cut/Copy/Paste
+  f1   f2   f3   M-l        ;; 7 8 9 + = Function keys & Lock Screen (Super+L)
+  f4   f5   f6              ;; 4 5 6   = Function keys
+  f7   f8   f9   C-z        ;; 1 2 3 Enter = Function keys & Undo
+  f10       f11             ;; 0 .     = Function keys
+)

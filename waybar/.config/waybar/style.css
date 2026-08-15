@@ -2,7 +2,7 @@
   all: unset;
 
   font-family: Monospace, Helvetica, Arial, sans-serif;
-  font-size: 12px;
+  font-size: 0.8rem;
   min-height: 0;
 
   transition:
@@ -39,7 +39,7 @@ tooltip label {
 
 #workspaces button {
   background-color: #2d2e2f;
-  padding: 0px 4px;
+  padding: 2px 4px;
   border-radius: 99px;
   margin: 4px;
   min-width: 2rem;
@@ -53,20 +53,22 @@ tooltip label {
 }
 
 .modules-center {
-  margin-top: 5px;
-  padding: 4px;
+  margin: 5px;
+  padding: 4px 10px;
   border-radius: 99px;
+  color: aliceblue;
   background-color: #2d2e2f;
 }
 
 .modules-right {
   margin: 4px 4px;
   border-radius: 99px;
+  padding: 0px 10px 0px 10px;
   background-color: #2d2e2f;
 }
 .modules-right * {
   color: white;
-  font-size: 1.2rem;
+  font-size: 1rem;
   border-radius: 8px;
   /* margin-left: 4px;
   margin-right: 4px; */
@@ -77,9 +79,6 @@ tooltip label {
 .modules-right > * :hover {
   background: rgba(139, 182, 243, 0.15);
   border-radius: 8px;
-}
-#bluetooth {
-  font-size: 1rem;
 }
 
 #tray * {
@@ -124,8 +123,9 @@ tooltip label {
 } */
 
 #custom-powermenu {
-  border-radius: 8px;
-  font-size: 18px;
+  /* border-radius: 8px; */
+  font-size: 1rem;
+  padding-right: 10px;
 }
 
 #custom-powermenu:hover {

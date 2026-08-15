@@ -6,7 +6,7 @@
 local terminal    = "kitty"
 local fileManager = "dolphin"
 -- local menu        = "pkill rofi || rofi -show drun"
-local menu        = "pkill wofi || wofi --show drun"
+local menu        = "pkill rofi || rofi -show drun"
 local ide         = "code"
 local browser1     = 'vivaldi'
 local browser2     = 'zen-browser -P "Leisure"'
@@ -128,9 +128,9 @@ hl.bind("SUPER + SHIFT + LEFT", hl.dsp.window.move({ monitor = "HDMI-A-1"}))
 
 hl.bind("SUPER + SHIFT + N", hl.dsp.exec_cmd("swaync-client -R && swaync-client -rs"))
 -- hl.bind("SUPER + V", hl.dsp.exec_cmd("cliphist list | wofi --dmenu --pre-display-cmd \"echo \'%s\' | cut -f 2\" | cliphist decode | wl-copy"))
-hl.bind("SUPER + V", hl.dsp.exec_cmd("cliphist list | wofi -dmenu | cliphist decode | wl-copy"))
+hl.bind("SUPER + V", hl.dsp.exec_cmd("cliphist list | rofi -dmenu | cliphist decode | wl-copy"))
 hl.bind("ALT + TAB", hl.dsp.focus({ workspace = "e+1" }))
-hl.bind("SUPER + TAB", hl.dsp.exec_cmd("wofi --show window"))
+hl.bind("SUPER + TAB", hl.dsp.exec_cmd("rofi -show window"))
 
 -- hl.bind("SUPER + TAB", function()
 --     hl.dispatch(hl.dsp.window.cycle_next())    -- Change focus to another window
@@ -203,3 +203,16 @@ hl.bind("SUPER + A", function()
 end)
 
 hl.bind("SUPER + SHIFT + A", hl.dsp.exec_cmd(browser1))
+
+---------------------------------------------------------------------------------------------------------------------------
+-------------------------- MacroPad Binds ---------------------------------------------------------------------------------
+
+hl.bind("KP_Enter", hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"), {
+    device = {
+        inclusive = true,
+        list = { "hs6209-2.4g-wireless-receiver" }
+    }
+})
+
+
+---------------------------------------------------------------------------------------------------------------------------

@@ -11,10 +11,10 @@ services:
 
     volumes:
       # Jellyfin configuration
-      - /home/shamil/docker/jellyfin/config:/config
+      - /home/shamil/dotfiles/docker/jellyfin/config:/config
 
       # Jellyfin cache/transcoding files
-      - /home/shamil/docker/jellyfin/cache:/cache
+      - /home/shamil/dotfiles/docker/jellyfin/cache:/cache
 
       # Media on your Windows/NTFS drive
       - /mnt/d/Movies:/media/movies:rw
