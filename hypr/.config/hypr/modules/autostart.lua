@@ -21,12 +21,12 @@ hl.on("hyprland.start", function ()
     hl.exec_cmd("wl-paste --type image --watch cliphist store")
     hl.exec_cmd("wl-clip-persist --clipboard regular")
 
-    hl.timer(function()
-        hl.exec_cmd("hyprctl hyprsunset gamma_max 69")
-    end, {
-        timeout = 1000,
-        type = "oneshot"
-    })
+    -- hl.timer(function()
+    --     hl.exec_cmd("hyprctl hyprsunset gamma_max 69")
+    -- end, {
+    --     timeout = 1000,
+    --     type = "oneshot"
+    -- })
 end)
 
 -- hl.on("monitor.layout_changed", function()

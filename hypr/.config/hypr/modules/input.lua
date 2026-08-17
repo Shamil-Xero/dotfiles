@@ -21,6 +21,10 @@ hl.config({ -- Default input configuration, see https://wiki.hypr.land/Configuri
     },
 })
 
+hl.bind("CONTROL + bracketleft", hl.dsp.send_shortcut({ mods = "", key = "backslash"}))
+hl.bind("CONTROL + bracketright", hl.dsp.send_shortcut({ mods = "Shift", key = "backslash"}))
+
+
 hl.gesture({ -- See https://wiki.hypr.land/Configuring/Advanced-and-Cool/Gestures/
     fingers = 3,
     direction = "horizontal",

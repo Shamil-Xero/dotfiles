@@ -24,6 +24,13 @@ hl.bind("SUPER + SUPER_L", hl.dsp.exec_cmd(menu), { release = true })
 hl.bind("SUPER + P", hl.dsp.window.pseudo())
 hl.bind("SUPER + B", hl.dsp.layout("togglesplit"))
 hl.bind("SUPER + F", hl.dsp.window.fullscreen({mode = "fullscreen"}))
+hl.bind("SUPER + SHIFT + F", function()
+    hl.dsp.window.fullscreen_state({
+        internal = 0,
+        client = 2,
+        action = "toggle",
+    })
+end)
 hl.bind("SUPER + SHIFT + F", hl.dsp.window.float())
 
 -- Move focus with mainMod
@@ -52,15 +59,19 @@ for i = 1, 10 do
 end
 
 -- Retrieve the workspace name and use it in a keybinding
-hl.bind("SUPER + X", function()
-    local ws = hl.get_active_workspace()
-    for _, monitor in ipairs(hl.get_monitors()) do
-        hl.notification.create({ 
-            text = "Monitors: " .. monitor.name, 
-            timeout = 3000, 
-            icon = "info" 
-        })
-    end
+-- hl.bind("SUPER + X", function()    
+--     hl.dispatch(hl.dsp.exec_cmd(
+--     [[notify-send "Active Window" "$(hyprctl activewindow -j | jq -r '.title')"]]
+-- ))
+    -- local ws = hl.get_active_workspace()
+    -- for _, monitor in ipairs(hl.get_monitors()) do
+    --     hl.notification.create({ 
+    --         text = "Monitors: " .. monitor.name, 
+    --         timeout = 3000, 
+    --         icon = "info" 
+    --     })
+    -- end
+
     -- if ws ~= nil then
     --     local ws_name = ws.name
     --     -- Send a notification showing the active workspace namewofi
@@ -70,15 +81,15 @@ hl.bind("SUPER + X", function()
     --         icon = "info" 
     --     })
     -- end
-end)
+-- end)
 
 -- Example special workspace (scratchpad)
 hl.bind("SUPER + S",         hl.dsp.workspace.toggle_special("scratchpad"))
 hl.bind("SUPER + SHIFT + S", hl.dsp.window.move({ workspace = "special:scratchpad", follow = false}))
 
 -- Scroll through existing workspaces with mainMod + scroll
-hl.bind("SUPER + mouse_down", hl.dsp.focus({ workspace = "e-1" }))
-hl.bind("SUPER + mouse_up",   hl.dsp.focus({ workspace = "e+1" }))
+hl.bind("SUPER + mouse_down", hl.dsp.focus({ workspace = "e+1" }))
+hl.bind("SUPER + mouse_up",   hl.dsp.focus({ workspace = "e-1" }))
 
 -- Move/resize windows with mainMod + LMB/RMB and dragging
 hl.bind("SUPER + mouse:272", hl.dsp.window.drag(),   { mouse = true })
@@ -132,18 +143,28 @@ hl.bind("SUPER + V", hl.dsp.exec_cmd("cliphist list | rofi -dmenu | cliphist dec
 hl.bind("ALT + TAB", hl.dsp.focus({ workspace = "e+1" }))
 hl.bind("SUPER + TAB", hl.dsp.exec_cmd("rofi -show window"))
 
+
+
 -- hl.bind("SUPER + TAB", function()
 --     hl.dispatch(hl.dsp.window.cycle_next())    -- Change focus to another window
 --     hl.dispatch(hl.dsp.window.bring_to_top()) -- Bring it to the top
 -- end)
 
-local function cycle_or_launch(class, command)
+---------------------
+--- MY FUNCTIONS ----
+---------------------
+
+local function launch(class, opts)
+    opts = opts or {}
+
+    local command = opts.command
+    local workspace = opts.workspace
+
     local windows = hl.get_windows()
     local active = hl.get_active_window()
 
     local matches = {}
 
-    -- Collect all matching windows
     for _, w in ipairs(windows) do
         if w.class == class then
             table.insert(matches, w)
@@ -152,11 +173,17 @@ local function cycle_or_launch(class, command)
 
     -- Launch if none exist
     if #matches == 0 then
-        hl.dispatch(hl.dsp.exec_cmd(command))
+        local launch_command = command or class
+
+        hl.dispatch(hl.dsp.exec_cmd(
+            launch_command,
+            { workspace = workspace }
+        ))
+
         return
     end
 
-    -- Focus it if there's only one
+    -- Focus if there's only one
     if #matches == 1 then
         hl.dispatch(hl.dsp.focus({
             window = "address:" .. matches[1].address
@@ -176,7 +203,7 @@ local function cycle_or_launch(class, command)
         end
     end
 
-    -- If another app is focused, start from the first match
+    -- Cycle to next
     local next = (current % #matches) + 1
 
     hl.dispatch(hl.dsp.focus({
@@ -184,30 +211,197 @@ local function cycle_or_launch(class, command)
     }))
 end
 
-hl.bind("SUPER + SHIFT + D", function()
-    cycle_or_launch("codium", "codium")
+
+hl.bind("SUPER + D", function()
+    launch("codium")
 end)
 
 -- hl.bind("SUPER + T", function()
---     cycle_or_launch("kitty", "kitty")
+--     launch("kitty", "kitty")
 -- end)
 
 hl.bind("SUPER + T", hl.dsp.exec_cmd(terminal))
 
 hl.bind("SUPER + O", function()
-    cycle_or_launch("obsidian", "obsidian")
+    launch("obsidian")
 end)
 
 hl.bind("SUPER + A", function()
-    cycle_or_launch("vivaldi-stable", "vivaldi-stable")
+    launch("vivaldi-stable")
 end)
 
 hl.bind("SUPER + SHIFT + A", hl.dsp.exec_cmd(browser1))
 
----------------------------------------------------------------------------------------------------------------------------
--------------------------- MacroPad Binds ---------------------------------------------------------------------------------
+----------------------------
+----- MacroPad Binds -------
+----------------------------
 
-hl.bind("KP_Enter", hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"), {
+-- Numpad /
+hl.bind("KP_Divide", 
+    function()
+        hl.dispatch(hl.dsp.send_shortcut({
+            mods = "CONTROL_L",
+            key = "L",
+            window = "class:Spotify"
+        }))
+
+        hl.dispatch(hl.dsp.focus({
+            window = "class:Spotify"
+        }))
+    end, {
+    device = {
+        inclusive = true,
+        list = { "hs6209-2.4g-wireless-receiver" }
+    }
+})
+
+-- Numpad *
+hl.bind("KP_Multiply", 
+    function()
+        launch("Spotify", {command = "spotify", workspace = 10})
+    end, {
+    device = {
+        inclusive = true,
+        list = { "hs6209-2.4g-wireless-receiver" }
+    }
+})
+
+-- Numpad -
+hl.bind("KP_Subtract",
+    function()
+        hl.dispatch(hl.dsp.focus({
+            window = "class:vivaldi-stable"
+        }))
+
+        hl.dispatch(hl.dsp.exec_cmd(
+            "python /mnt/d/Programs/Python-Scripts/Random-Youtube-Video-from-Playlist.py https://www.youtube.com/playlist?list=PLb-MR2Hfk3tmamG_oQKvYK--4uZ0ULfHn"
+        ))
+    end, {
+        device = {
+        inclusive = true,
+        list = { "hs6209-2.4g-wireless-receiver" }
+    }
+})
+
+-- Numpad +
+hl.bind("KP_Add", 
+    hl.dsp.send_shortcut({ mods = "CONTROL_L", key = "Right", window = "class:Spotify" }), {
+    device = {
+        inclusive = true,
+        list = { "hs6209-2.4g-wireless-receiver" }
+    }
+})
+
+-- Numpad 9
+hl.bind("KP_Page_Up ", 
+    hl.dsp.send_shortcut({ mods = "CONTROL_L", key = "Right", window = "class:Spotify" }), {
+    device = {
+        inclusive = true,
+        list = { "hs6209-2.4g-wireless-receiver" }
+    }
+})
+
+-- Numpad 8
+hl.bind("KP_Up", 
+    hl.dsp.send_shortcut({ mods = "", key = "Space", window = "class:Spotify" }), {
+    device = {
+        inclusive = true,
+        list = { "hs6209-2.4g-wireless-receiver" }
+    }
+})
+
+-- Numpad 7
+hl.bind("KP_Home", 
+    hl.dsp.send_shortcut({ mods = "CONTROL_L", key = "Left", window = "class:Spotify" }), {
+    device = {
+        inclusive = true,
+        list = { "hs6209-2.4g-wireless-receiver" }
+    }
+})
+
+-- Numpad 6
+hl.bind("KP_RIGHT", 
+    hl.dsp.exec_cmd("playerctl next"), {
+    device = {
+        inclusive = true,
+        list = { "hs6209-2.4g-wireless-receiver" }
+    }
+})
+
+-- Numpad 5
+hl.bind("KP_BEGIN", 
+    hl.dsp.exec_cmd("playerctl play-pause"), {
+    device = {
+        inclusive = true,
+        list = { "hs6209-2.4g-wireless-receiver" }
+    }
+})
+
+
+-- Numpad 4
+hl.bind("KP_LEFT", 
+    hl.dsp.exec_cmd("playerctl previous"), {
+    device = {
+        inclusive = true,
+        list = { "hs6209-2.4g-wireless-receiver" }
+    }
+})
+
+-- Numpad 3
+hl.bind("KP_Page_Down", 
+    hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+"), {
+    device = {
+        inclusive = true,
+        list = { "hs6209-2.4g-wireless-receiver" }
+    }
+})
+
+-- Numpad 2
+hl.bind("KP_Down", 
+    hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"), {
+    device = {
+        inclusive = true,
+        list = { "hs6209-2.4g-wireless-receiver" }
+    }
+})
+
+-- Numpad 1
+hl.bind("KP_END", 
+    hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"), {
+    device = {
+        inclusive = true,
+        list = { "hs6209-2.4g-wireless-receiver" }
+    }
+})
+
+-- Numpad 0
+hl.bind("KP_INSERT", function()
+    hl.dispatch(hl.dsp.focus({
+        window = "class:Spotify"
+    }))
+
+    hl.dispatch(hl.dsp.send_shortcut({
+        mods = "CONTROL_L",
+        key = "L",
+        window = "class:Spotify"
+    }))
+end, {
+    device = {
+        inclusive = true,
+        list = { "hs6209-2.4g-wireless-receiver" }
+    }
+})
+
+hl.bind("Backspace", 
+    hl.dsp.exec_cmd("playerctl play-pause"), {
+    device = {
+        inclusive = true,
+        list = { "hs6209-2.4g-wireless-receiver" }
+    }
+})
+
+hl.bind("KP_Enter", 
+    hl.dsp.exec_cmd("playerctl play-pause"), {
     device = {
         inclusive = true,
         list = { "hs6209-2.4g-wireless-receiver" }
@@ -216,3 +410,12 @@ hl.bind("KP_Enter", hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"
 
 
 ---------------------------------------------------------------------------------------------------------------------------
+
+
+hl.bind("CONTROL_L + bracketleft", 
+    hl.dsp.send_shortcut({ mods = "", key = "backslash"}), {
+    device = {
+        inclusive = true,
+        list = { "hs6209-2.4g-wireless-receiver" }
+    }
+})
