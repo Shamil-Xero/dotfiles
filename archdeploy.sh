@@ -357,7 +357,7 @@ stow_count=0
 for i in "${!STOW_PACKAGES[@]}"; do
     pkg="${STOW_PACKAGES[$i]}"
     if [[ "${stow_selected[$i]}" == "1" ]]; then
-        ((stow_count++))
+        ((stow_count++)) || true
         echo -e "    ${GREEN}✓${NC} ${pkg}"
     else
         echo -e "    ${DIM}✗ ${pkg}${NC}"
@@ -436,7 +436,7 @@ if run_or_dry "sudo pacman -Syu --noconfirm 2>&1 | tail -5"; then
     success "System updated"
 else
     fail "System update failed (continuing anyway)"
-    ((errors++))
+    ((errors++)) || true
 fi
 
 # ── [2/7] Install Paru ───────────────────────────────────────────
@@ -456,7 +456,7 @@ else
         success "paru installed successfully"
     else
         fail "paru installation failed"
-        ((errors++))
+        ((errors++)) || true
         echo -e "  ${RED}Cannot continue without an AUR helper. Exiting.${NC}"
         exit 1
     fi
@@ -477,10 +477,10 @@ for i in "${!PACKAGE_CATEGORIES[@]}"; do
             info "Installing ${cat} (${count} packages)..."
             if run_or_dry "paru -S --needed --noconfirm $packages 2>&1 | tail -3"; then
                 success "${cat} — ${count} packages installed"
-                installed_pkg_count=$((installed_pkg_count + count))
+                installed_pkg_count=$(( installed_pkg_count + count )) || true
             else
                 fail "${cat} — some packages may have failed"
-                ((errors++))
+                ((errors++)) || true
             fi
         else
             warn "${cat}.txt not found, skipping"
@@ -499,10 +499,10 @@ for i in "${!STOW_PACKAGES[@]}"; do
             info "Stowing ${pkg}..."
             if run_or_dry "stow -d '$DOTFILES_DIR' -t '$HOME' --adopt '$pkg' 2>&1"; then
                 success "${pkg} — symlinked"
-                ((linked_config_count++))
+                ((linked_config_count++)) || true
             else
                 fail "${pkg} — stow failed (conflicts?)"
-                ((errors++))
+                ((errors++)) || true
             fi
         else
             warn "${pkg} — directory not found"
@@ -519,10 +519,10 @@ if $enable_services; then
         info "Enabling ${svc}..."
         if run_or_dry "sudo systemctl enable '$svc' 2>&1"; then
             success "${svc}"
-            ((enabled_svc_count++))
+            ((enabled_svc_count++)) || true
         else
             fail "${svc} — failed to enable"
-            ((errors++))
+            ((errors++)) || true
         fi
     done
     
@@ -531,10 +531,10 @@ if $enable_services; then
         info "Enabling ${svc} (user)..."
         if run_or_dry "systemctl --user enable '$svc' 2>&1"; then
             success "${svc} (user)"
-            ((enabled_svc_count++))
+            ((enabled_svc_count++)) || true
         else
             fail "${svc} (user) — failed to enable"
-            ((errors++))
+            ((errors++)) || true
         fi
     done
 else
@@ -550,7 +550,7 @@ if run_or_dry "sudo usermod -aG input,video $USERNAME 2>&1"; then
     success "User added to input and video groups"
 else
     fail "Failed to add user groups"
-    ((errors++))
+    ((errors++)) || true
 fi
 
 # CPU Governor Conflict (Auto-cpufreq)
@@ -572,7 +572,7 @@ if $auto_cpufreq_selected; then
         success "power-profiles-daemon masked"
     else
         fail "Failed to mask power-profiles-daemon"
-        ((errors++))
+        ((errors++)) || true
     fi
 fi
 
@@ -621,7 +621,7 @@ if $configure_nvidia; then
             success "NVIDIA set to hybrid mode"
         else
             fail "envycontrol failed"
-            ((errors++))
+            ((errors++)) || true
         fi
     else
         warn "envycontrol not found (install nvidia packages first)"
@@ -655,7 +655,7 @@ if $configure_autologin; then
         success "TTY1 Auto-login configured"
     else
         fail "Failed to configure TTY1 Auto-login"
-        ((errors++))
+        ((errors++)) || true
     fi
 fi
 
@@ -674,7 +674,7 @@ if $apply_ufw; then
             success "UFW rules applied"
         else
             fail "Failed to apply UFW rules"
-            ((errors++))
+            ((errors++)) || true
         fi
     else
         warn "UFW is not installed, skipping rules"
