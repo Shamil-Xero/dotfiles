@@ -72,6 +72,87 @@ run_or_dry() {
     fi
 }
 
+# ── Spinner ─────────────────────────────────────────────────────────
+_SPINNER_PID=""
+
+_spinner_loop() {
+    local msg="$1"
+    local tmpout="${2:-}"
+    local -a frames=('⠋' '⠙' '⠹' '⠸' '⠼' '⠴' '⠦' '⠧' '⠇' '⠏')
+    local i=0
+    local start=$SECONDS
+    tput civis 2>/dev/null || true
+    printf "\n"  # reserve a detail line below the spinner
+    while true; do
+        local elapsed=$(( SECONDS - start ))
+        local elapsed_str
+        if (( elapsed < 60 )); then
+            elapsed_str="${elapsed}s"
+        else
+            elapsed_str="$(( elapsed / 60 ))m $(( elapsed % 60 ))s"
+        fi
+
+        # pull last non-empty line from live output, strip ANSI codes
+        local detail=""
+        if [[ -n "$tmpout" && -s "$tmpout" ]]; then
+            detail=$(grep -v '^[[:space:]]*$' "$tmpout" 2>/dev/null | tail -1 \
+                     | sed 's/\x1b\[[0-9;]*[A-Za-z]//g' | tr -d '\r' | cut -c1-72)
+        fi
+
+        # move up to spinner line and redraw
+        printf "\033[1A\r  \033[0;36m${frames[$i]}\033[0m  %-54s \033[2m[%s]\033[0m\n" \
+               "$msg" "$elapsed_str"
+        # redraw detail line
+        printf "  \033[2m  ↳ %-74s\033[0m" "${detail:- }"
+
+        i=$(( (i + 1) % 10 ))
+        sleep 0.12
+    done
+}
+
+start_spinner() {
+    _spinner_loop "$1" "${2:-}" &
+    _SPINNER_PID=$!
+    disown "$_SPINNER_PID" 2>/dev/null || true
+}
+
+stop_spinner() {
+    if [[ -n "$_SPINNER_PID" ]]; then
+        kill "$_SPINNER_PID" 2>/dev/null || true
+        _SPINNER_PID=""
+    fi
+    tput cnorm 2>/dev/null || true
+    # clear detail line, move up one, clear spinner line
+    printf "\r\033[2K\033[1A\r\033[2K"
+}
+
+_cleanup_spinner() { stop_spinner; }
+trap _cleanup_spinner EXIT INT TERM
+
+# Run a command with a spinner. All output is captured to the log.
+# On failure, the last 3 lines of output are printed inline for context.
+run_spinner() {
+    local msg="$1"; shift
+    if $DRY_RUN; then
+        info "${DIM}[dry-run]${NC} $*"
+        return 0
+    fi
+    local _tmpout
+    _tmpout=$(mktemp /tmp/.archdeploy_XXXXXX)
+    start_spinner "$msg"
+    local _rc=0
+    ( eval "$@" ) > "$_tmpout" 2>&1 || _rc=$?
+    stop_spinner
+    cat "$_tmpout" >> "$LOG_FILE"
+    if [[ $_rc -ne 0 ]]; then
+        tail -3 "$_tmpout" | while IFS= read -r line; do
+            info "${DIM}${line}${NC}"
+        done
+    fi
+    rm -f "$_tmpout"
+    return $_rc
+}
+
 count_packages() {
     local file="$DOTFILES_DIR/packages/$1.txt"
     if [[ -f "$file" ]]; then
@@ -424,6 +505,13 @@ echo -e "${CYAN}${BOLD}  Deploying...                                           
 echo -e "${CYAN}${BOLD}══════════════════════════════════════════════════════════════${NC}"
 echo ""
 
+# Cache sudo credentials upfront so they don't interrupt spinners mid-run
+if ! $DRY_RUN; then
+    echo -e "  ${DIM}Enter sudo password to cache credentials for the deployment:${NC}"
+    sudo -v
+    echo ""
+fi
+
 # Track totals for summary
 installed_pkg_count=0
 linked_config_count=0
@@ -432,7 +520,7 @@ errors=0
 
 # ── [1/7] System Update ──────────────────────────────────────────
 step "  [1/7] ▸ Updating system..."
-if run_or_dry "sudo pacman -Syu --noconfirm 2>&1 | tail -5"; then
+if run_spinner "Updating system packages (pacman -Syu)..." "sudo pacman -Syu --noconfirm"; then
     success "System updated"
 else
     fail "System update failed (continuing anyway)"
@@ -444,8 +532,7 @@ step "  [2/7] ▸ Installing paru (AUR helper)..."
 if command -v paru &>/dev/null; then
     success "paru is already installed"
 else
-    info "Building paru from AUR..."
-    if run_or_dry "
+    if run_spinner "Building paru from AUR (this may take a few minutes)..." "
         sudo pacman -S --needed --noconfirm base-devel git &&
         PARU_BUILD_DIR=\$(mktemp -d) &&
         git clone https://aur.archlinux.org/paru.git \"\$PARU_BUILD_DIR/paru\" &&
@@ -474,8 +561,7 @@ for i in "${!PACKAGE_CATEGORIES[@]}"; do
             packages=$(grep -v '^#\|^$' "$pkg_file" | tr '\n' ' ')
             count=$(echo "$packages" | wc -w)
             
-            info "Installing ${cat} (${count} packages)..."
-            if run_or_dry "paru -S --needed --noconfirm $packages 2>&1 | tail -3"; then
+            if run_spinner "Installing ${cat} (${count} packages)..." "paru -S --needed --noconfirm $packages"; then
                 success "${cat} — ${count} packages installed"
                 installed_pkg_count=$(( installed_pkg_count + count )) || true
             else
@@ -496,8 +582,7 @@ for i in "${!STOW_PACKAGES[@]}"; do
     if [[ "${stow_selected[$i]}" == "1" ]]; then
         pkg_dir="$DOTFILES_DIR/$pkg"
         if [[ -d "$pkg_dir" ]]; then
-            info "Stowing ${pkg}..."
-            if run_or_dry "stow -d '$DOTFILES_DIR' -t '$HOME' --adopt '$pkg' 2>&1"; then
+            if run_spinner "Symlinking ${pkg}..." "stow -d '$DOTFILES_DIR' -t '$HOME' --adopt '$pkg'"; then
                 success "${pkg} — symlinked"
                 ((linked_config_count++)) || true
             else
@@ -516,8 +601,7 @@ step "  [5/7] ▸ Enabling systemd services..."
 if $enable_services; then
     # System services
     for svc in "${system_services[@]}"; do
-        info "Enabling ${svc}..."
-        if run_or_dry "sudo systemctl enable '$svc' 2>&1"; then
+        if run_spinner "Enabling ${svc}..." "sudo systemctl enable '$svc'"; then
             success "${svc}"
             ((enabled_svc_count++)) || true
         else
@@ -528,8 +612,7 @@ if $enable_services; then
     
     # User services
     for svc in "${user_services[@]}"; do
-        info "Enabling ${svc} (user)..."
-        if run_or_dry "systemctl --user enable '$svc' 2>&1"; then
+        if run_spinner "Enabling ${svc} (user)..." "systemctl --user enable '$svc'"; then
             success "${svc} (user)"
             ((enabled_svc_count++)) || true
         else
@@ -545,8 +628,7 @@ fi
 step "  [6/7] ▸ Applying extras..."
 
 # Essential User Groups
-info "Configuring essential user groups (input, video)..."
-if run_or_dry "sudo usermod -aG input,video $USERNAME 2>&1"; then
+if run_spinner "Adding $USERNAME to input and video groups..." "sudo usermod -aG input,video $USERNAME"; then
     success "User added to input and video groups"
 else
     fail "Failed to add user groups"
@@ -565,10 +647,9 @@ for i in "${!PACKAGE_CATEGORIES[@]}"; do
 done
 
 if $auto_cpufreq_selected; then
-    info "Resolving CPU governor conflict (masking power-profiles-daemon)..."
-    run_or_dry "sudo systemctl stop power-profiles-daemon.service 2>/dev/null || true"
-    run_or_dry "sudo systemctl disable power-profiles-daemon.service 2>/dev/null || true"
-    if run_or_dry "sudo systemctl mask power-profiles-daemon.service 2>&1"; then
+    run_spinner "Stopping power-profiles-daemon..." "sudo systemctl stop power-profiles-daemon.service 2>/dev/null || true" || true
+    run_spinner "Disabling power-profiles-daemon..." "sudo systemctl disable power-profiles-daemon.service 2>/dev/null || true" || true
+    if run_spinner "Masking power-profiles-daemon (CPU governor conflict)..." "sudo systemctl mask power-profiles-daemon.service"; then
         success "power-profiles-daemon masked"
     else
         fail "Failed to mask power-profiles-daemon"
@@ -615,9 +696,8 @@ fi
 
 # NVIDIA envycontrol
 if $configure_nvidia; then
-    info "Configuring NVIDIA hybrid mode..."
     if command -v envycontrol &>/dev/null || $DRY_RUN; then
-        if run_or_dry "sudo envycontrol --switch hybrid 2>&1"; then
+        if run_spinner "Switching NVIDIA to hybrid mode (envycontrol)..." "sudo envycontrol --switch hybrid"; then
             success "NVIDIA set to hybrid mode"
         else
             fail "envycontrol failed"
@@ -630,12 +710,10 @@ fi
 
 # Flatpak restore
 if $restore_flatpak; then
-    info "Restoring Flatpak apps..."
     if command -v flatpak &>/dev/null || $DRY_RUN; then
         while IFS= read -r app_id; do
             [[ "$app_id" =~ ^#.*$ || -z "$app_id" ]] && continue
-            info "Installing ${app_id}..."
-            run_or_dry "flatpak install -y flathub '$app_id' 2>&1 | tail -1" || true
+            run_spinner "Installing Flatpak: ${app_id}..." "flatpak install -y flathub '$app_id'" || true
         done < "$flatpak_file"
         success "Flatpak apps restored"
     else
@@ -645,8 +723,7 @@ fi
 
 # Auto-login
 if $configure_autologin; then
-    info "Configuring TTY1 Auto-login..."
-    if run_or_dry "
+    if run_spinner "Configuring TTY1 auto-login for $USERNAME..." "
         sudo mkdir -p /etc/systemd/system/getty@tty1.service.d &&
         echo '[Service]' | sudo tee /etc/systemd/system/getty@tty1.service.d/autologin.conf >/dev/null &&
         echo 'ExecStart=' | sudo tee -a /etc/systemd/system/getty@tty1.service.d/autologin.conf >/dev/null &&
@@ -661,15 +738,14 @@ fi
 
 # UFW Rules
 if $apply_ufw; then
-    info "Applying UFW rules..."
     if command -v ufw &>/dev/null || $DRY_RUN; then
-        if run_or_dry "
-            sudo ufw allow 1714:1764/udp >/dev/null &&
-            sudo ufw allow 1714:1764/tcp >/dev/null &&
-            sudo ufw allow 8096/tcp >/dev/null &&
-            sudo ufw allow 47984:48010/tcp >/dev/null &&
-            sudo ufw allow 47984:48010/udp >/dev/null &&
-            sudo ufw reload >/dev/null
+        if run_spinner "Applying UFW firewall rules..." "
+            sudo ufw allow 1714:1764/udp &&
+            sudo ufw allow 1714:1764/tcp &&
+            sudo ufw allow 8096/tcp &&
+            sudo ufw allow 47984:48010/tcp &&
+            sudo ufw allow 47984:48010/udp &&
+            sudo ufw reload
         "; then
             success "UFW rules applied"
         else
