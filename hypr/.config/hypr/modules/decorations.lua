@@ -78,3 +78,10 @@ hl.animation({ leaf = "workspaces",    enabled = false,  speed = 1.0, bezier = "
 -- hl.animation({ leaf = "workspacesOut", enabled = true,  speed = 1.0, bezier = "quick", style = "slide" })
 hl.animation({ leaf = "zoomFactor",    enabled = true,  speed = 7,    bezier = "quick" })
 
+hl.window_rule({
+  name = "Vivaldi-blur",
+  match = {
+    class = "vivaldi-stable"
+  },
+  opacity = "0.9 override 0.8 override",
+})

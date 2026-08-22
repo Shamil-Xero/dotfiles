@@ -561,7 +561,7 @@ for i in "${!PACKAGE_CATEGORIES[@]}"; do
             packages=$(grep -v '^#\|^$' "$pkg_file" | tr '\n' ' ')
             count=$(echo "$packages" | wc -w)
             
-            if run_spinner "Installing ${cat} (${count} packages)..." "paru -S --needed --noconfirm $packages"; then
+            if run_spinner "Installing ${cat} (${count} packages)..." "paru -S --needed --noconfirm --ask=4 $packages"; then
                 success "${cat} — ${count} packages installed"
                 installed_pkg_count=$(( installed_pkg_count + count )) || true
             else

@@ -121,7 +121,6 @@ hl.bind("XF86AudioPrev",  hl.dsp.exec_cmd("playerctl previous"),   { locked = tr
 -- Applications
 -- hl.bind("SUPER + SHIFT + A", hl.dsp.exec_cmd(browser1))
 hl.bind("SUPER + SHIFT + G", hl.dsp.exec_cmd(browser2))
--- hl.bind("SUPER + O", hl.dsp.exec_cmd("obsidian"))
 hl.bind("SUPER + E", hl.dsp.exec_cmd(fileManager))
 
 hl.bind("SUPER + Z", hl.dsp.exec_cmd("~/.config/hypr/scripts/scrcpy-tcpip-app-launcher.sh"))
@@ -211,11 +210,6 @@ local function launch(class, opts)
     }))
 end
 
-
-hl.bind("SUPER + D", function()
-    launch("codium")
-end)
-
 -- hl.bind("SUPER + T", function()
 --     launch("kitty", "kitty")
 -- end)
@@ -223,14 +217,24 @@ end)
 hl.bind("SUPER + T", hl.dsp.exec_cmd(terminal))
 
 hl.bind("SUPER + O", function()
-    launch("obsidian")
+    launch("md.obsidian.Obsidian", { command = "obsidian" })
 end)
 
-hl.bind("SUPER + A", function()
+hl.bind("SUPER + D", function()
+    launch("code-oss")
+end)
+
+hl.bind("SUPER + S", function()
     launch("vivaldi-stable")
 end)
 
+hl.bind("SUPER + SHIFT + W", hl.dsp.exec_cmd("/home/shamil/.config/hypr/scripts/random-wallpaper-switcher.sh"))
+
+
 hl.bind("SUPER + SHIFT + A", hl.dsp.exec_cmd(browser1))
+
+hl.bind("SUPER + F11", hl.dsp.dpms({ action = "toggle", monitor = "HDMI-A-1" }))
+hl.bind("SUPER + F12", hl.dsp.dpms({ action = "toggle", monitor = "eDP-1" }))
 
 ----------------------------
 ----- MacroPad Binds -------

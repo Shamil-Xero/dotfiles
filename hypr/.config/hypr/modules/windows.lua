@@ -65,13 +65,7 @@ hl.window_rule({
   opacity = 0.7,
 })
 
-hl.window_rule({
-  name = "Vivaldi-blur",
-  match = {
-    class = "vivaldi-stable"
-  },
-  opacity = "0.8 override 0.7 override",
-})
+
 
 hl.window_rule({
   name = "YouTube-fullOpacity",

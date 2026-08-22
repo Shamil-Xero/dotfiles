@@ -27,3 +27,5 @@ export PATH="$HOME/.local/bin:$PATH"
 
 # Added by LM Studio CLI tool (lms)
 export PATH="$PATH:/home/shamil/.lmstudio/bin"
+
+export PATH=$PATH:/home/shamil/.spicetify

@@ -3,14 +3,10 @@
 
 # <file system> <dir> <type> <options> <dump> <pass>
 # /dev/nvme1n1p2
-UUID=ab403620-5b80-47f9-9363-8f816ae0d7bf	/         	btrfs     	rw,relatime,nodatasum,nodatacow,ssd,discard=async,space_cache=v2,subvol=/	0 0
+UUID=7d02c1c6-daf4-486a-9f8f-1d4ad7e8bf53	/         	btrfs     	rw,relatime,compress=zstd:3,ssd,discard=async,space_cache=v2,subvol=/	0 0
 
 # /dev/nvme1n1p1
-UUID=FD79-EAA6      	/boot     	vfat      	rw,relatime,fmask=0077,dmask=0077,codepage=437,iocharset=ascii,shortname=mixed,utf8,errors=remount-ro	0 2
-
-# Windows C
-# UUID=DCD848B5D8489026  /mnt/c  ntfs3  defaults,noatime,rw,uid=1000,gid=1000  0  0
+UUID=FCF6-EF85      	/boot     	vfat      	rw,relatime,fmask=0077,dmask=0077,codepage=437,iocharset=ascii,shortname=mixed,utf8,errors=remount-ro	0 2
 
 # Windows D
-UUID=8A1ADCA51ADC8F95  /mnt/d  ntfs3  defaults,uid=1000,gid=1000,umask=0002 0 0
-
+UUID=8A1ADCA51ADC8F95  /mnt/d  ntfs3  defaults,uid=1000,gid=1000,fmask=0000,dmask=0000 0 0

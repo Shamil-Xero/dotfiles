@@ -1,6 +1,7 @@
 
 -- https://wiki.hypr.land/Configuring/Start/
 
+-- require("modules/autostart")    -- Autostart applications
 require("modules/autostart")    -- Autostart applications
 require("modules/keybinds") -- Keybindings configuration
 require("modules/decorations") -- Window decorations configuration
