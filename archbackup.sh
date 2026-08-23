@@ -69,6 +69,19 @@ for arg in "$@"; do
     esac
 done
 
+# ── Dependency checks ──────────────────────────────────────────────
+if ! command -v rsync &>/dev/null; then
+    echo -e "  ${RED}✗${NC} rsync is not installed (required for syncing .config directories)"
+    read -rp "$(echo -e "  ${CYAN}Install rsync now via pacman? [y/N]:${NC} ")" install_confirm
+    if [[ "$install_confirm" =~ ^[Yy]$ ]]; then
+        sudo pacman -S --noconfirm rsync
+        echo -e "  ${GREEN}✓${NC} rsync installed successfully"
+    else
+        echo -e "  ${RED}✗${NC} Cannot proceed without rsync. Exiting."
+        exit 1
+    fi
+fi
+
 # ── Banner ─────────────────────────────────────────────────────────
 echo ""
 echo -e "${CYAN}${BOLD}╔══════════════════════════════════════════════════╗${NC}"
