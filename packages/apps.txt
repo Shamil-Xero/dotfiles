@@ -11,3 +11,5 @@ antigravity-ide
 apollo
 lm-studio-bin
 vscodium-bin
+jellyfin-server
+jellyfin-web

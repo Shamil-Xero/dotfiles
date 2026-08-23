@@ -8,8 +8,8 @@ local fileManager = "dolphin"
 -- local menu        = "pkill rofi || rofi -show drun"
 local menu        = "pkill rofi || rofi -show drun"
 local ide         = "code"
-local browser1     = 'vivaldi'
-local browser2     = 'zen-browser -P "Leisure"'
+local browser1     = 'vivaldi-stable'
+local browser2     = 'brave'
 -----------------------
 
 ---------------------
@@ -215,6 +215,8 @@ end
 -- end)
 
 hl.bind("SUPER + T", hl.dsp.exec_cmd(terminal))
+
+hl.bind("SUPER + R", hl.dsp.exec_cmd("/home/shamil/dotfiles/hypr/.config/hypr/scripts/waybinder.sh"))
 
 hl.bind("SUPER + O", function()
     launch("md.obsidian.Obsidian", { command = "obsidian" })

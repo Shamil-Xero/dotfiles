@@ -49,3 +49,5 @@ hermes/.hermes/*
 !hermes/.hermes/sessions/
 !hermes/.hermes/kanban.db
 !hermes/.hermes/hooks/
+
+hypr/.config/hypr/scripts/snippets/*
