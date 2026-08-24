@@ -24,3 +24,5 @@ kanata
 tlp
 tlp-pd
 tlpui
+cuda
+cudnn
