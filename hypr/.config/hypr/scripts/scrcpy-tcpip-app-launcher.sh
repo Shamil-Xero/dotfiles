@@ -27,7 +27,7 @@
 
 # Rofi
 
-DEVICE="10.228.207.205:5555"
+DEVICE="10.127.191.116:5555"
 DISPLAY_SIZE="2712x1220"
 
 # Get app list (name + package)

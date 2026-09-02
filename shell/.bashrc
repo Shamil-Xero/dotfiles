@@ -29,3 +29,9 @@ export PATH="$HOME/.local/bin:$PATH"
 export PATH="$PATH:/home/shamil/.lmstudio/bin"
 
 export PATH=$PATH:/home/shamil/.spicetify
+export PATH=/opt/cuda/bin:$PATH
+export LD_LIBRARY_PATH=/opt/cuda/lib64:$LD_LIBRARY_PATH
+export PATH=/opt/cuda/bin:$PATH
+export LD_LIBRARY_PATH=/opt/cuda/lib64:$LD_LIBRARY_PATH
+export PATH=/opt/cuda/bin:$PATH
+export LD_LIBRARY_PATH=/opt/cuda/lib64:$LD_LIBRARY_PATH
