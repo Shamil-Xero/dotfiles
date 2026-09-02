@@ -60,12 +60,27 @@ tooltip label {
   background-color: #2d2e2f;
 }
 
+.modules-center:hover {
+  /* margin: 5px;
+  padding: 4px 10px;
+  border-radius: 99px; */
+  color: rgb(50, 133, 206);
+  background-color: #2d2e2f;
+}
+
+#clock:hover {
+  color: rgb(50, 133, 206);
+  /* padding: 10px 20px; */
+  font-size: 1.1rem
+}
+
 .modules-right {
   margin: 4px 4px;
   border-radius: 99px;
   padding: 0px 10px 0px 10px;
   background-color: #2d2e2f;
 }
+
 .modules-right * {
   color: white;
   font-size: 1rem;
@@ -76,7 +91,7 @@ tooltip label {
   padding: 4px;
 }
 
-.modules-right > * :hover {
+.modules-right>* :hover {
   background: rgba(139, 182, 243, 0.15);
   border-radius: 8px;
 }

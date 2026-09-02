@@ -33,3 +33,7 @@ set -gx OBSIDIAN_VAULT_PATH "/mnt/d/RAM"
 set -gx fish_add_path "$HOME/.local/bin"
 
 fish_add_path /home/shamil/.spicetify
+
+# CUDA toolkit
+fish_add_path /opt/cuda/bin
+set -x LD_LIBRARY_PATH /opt/cuda/lib64 $LD_LIBRARY_PATH
