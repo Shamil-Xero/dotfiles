@@ -1,0 +1,16 @@
+/**
+ * Nord Color Palette for Rofi
+ **/
+
+* {
+    background:                  #2e3440FF;
+    background-alt:              #3b4252FF;
+    background-surface:          #242933FF;
+    foreground:                  #eceff4FF;
+    foreground-alt:              #d8dee9FF;
+    selected:                    #88c0d0FF;
+    selected-text:               #2e3440FF;
+    active:                      #a3be8cFF;
+    urgent:                      #bf616aFF;
+    border-color:                #88c0d0FF;
+}

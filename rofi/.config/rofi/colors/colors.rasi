@@ -1,0 +1,6 @@
+/**
+ * Active Color Theme Switcher
+ * Change import to switch global color palette across all Rofi menus
+ **/
+
+@import "catppuccin-mocha.rasi"

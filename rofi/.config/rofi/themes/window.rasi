@@ -1,0 +1,117 @@
+/**
+ * Window Switcher Layout for Rofi
+ **/
+
+@import "../colors/colors.rasi"
+
+configuration {
+    modi:                       "window";
+    show-icons:                 true;
+    window-format:              "{w} · {c} · {t}";
+}
+
+* {
+    font:                        "JetBrainsMono Nerd Font 10";
+    background-color:            transparent;
+    text-color:                  @foreground;
+    margin:                      0px;
+    padding:                     0px;
+}
+
+window {
+    transparency:                "real";
+    location:                    center;
+    anchor:                      center;
+    fullscreen:                  false;
+    width:                       700px;
+    border-radius:               12px;
+    border:                      2px solid;
+    border-color:                @border-color;
+    background-color:            @background;
+    cursor:                      "default";
+}
+
+mainbox {
+    enabled:                     true;
+    spacing:                     12px;
+    padding:                     24px;
+    background-color:            transparent;
+    children:                    [ "inputbar", "listview" ];
+}
+
+inputbar {
+    enabled:                     true;
+    spacing:                     10px;
+    padding:                     10px 14px;
+    border-radius:               8px;
+    background-color:            @background-alt;
+    text-color:                  @foreground;
+    children:                    [ "prompt", "entry" ];
+}
+
+prompt {
+    enabled:                     true;
+    background-color:            inherit;
+    text-color:                  @selected;
+    font:                        "JetBrainsMono Nerd Font Bold 10";
+    str:                         "   Windows ";
+}
+
+entry {
+    enabled:                     true;
+    background-color:            inherit;
+    text-color:                  inherit;
+    cursor:                      text;
+    placeholder:                 "Search open windows...";
+    placeholder-color:           @foreground-alt;
+}
+
+listview {
+    enabled:                     true;
+    columns:                     1;
+    lines:                       8;
+    cycle:                       true;
+    dynamic:                     true;
+    scrollbar:                   false;
+    layout:                      vertical;
+    spacing:                     6px;
+    background-color:            transparent;
+    text-color:                  @foreground;
+    cursor:                      "default";
+}
+
+element {
+    enabled:                     true;
+    spacing:                     12px;
+    padding:                     8px 12px;
+    border-radius:               8px;
+    background-color:            transparent;
+    text-color:                  @foreground;
+    cursor:                      pointer;
+}
+
+element normal.normal {
+    background-color:            transparent;
+    text-color:                  @foreground;
+}
+
+element selected.normal {
+    background-color:            @selected;
+    text-color:                  @selected-text;
+}
+
+element-icon {
+    background-color:            transparent;
+    text-color:                  inherit;
+    size:                        24px;
+    cursor:                      inherit;
+}
+
+element-text {
+    background-color:            transparent;
+    text-color:                  inherit;
+    highlight:                   inherit;
+    cursor:                      inherit;
+    vertical-align:              0.5;
+    horizontal-align:            0.0;
+}

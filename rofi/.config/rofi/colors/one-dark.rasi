@@ -1,0 +1,16 @@
+/**
+ * One Dark Color Palette for Rofi
+ **/
+
+* {
+    background:                  #282c34FF;
+    background-alt:              #353b45FF;
+    background-surface:          #21252bFF;
+    foreground:                  #abb2bfFF;
+    foreground-alt:              #5c6370FF;
+    selected:                    #61afefFF;
+    selected-text:               #282c34FF;
+    active:                      #98c379FF;
+    urgent:                      #e06c75FF;
+    border-color:                #61afefFF;
+}

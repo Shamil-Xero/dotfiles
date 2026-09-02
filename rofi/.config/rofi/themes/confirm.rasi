@@ -1,0 +1,90 @@
+/**
+ * Confirmation Dialog Layout for Rofi
+ **/
+
+@import "../colors/colors.rasi"
+
+* {
+    font:                        "JetBrainsMono Nerd Font 11";
+    background-color:            transparent;
+    text-color:                  @foreground;
+    margin:                      0px;
+    padding:                     0px;
+}
+
+window {
+    transparency:                "real";
+    location:                    center;
+    anchor:                      center;
+    fullscreen:                  false;
+    width:                       360px;
+    border-radius:               12px;
+    border:                      2px solid;
+    border-color:                @border-color;
+    background-color:            @background;
+    cursor:                      "default";
+}
+
+mainbox {
+    enabled:                     true;
+    spacing:                     15px;
+    padding:                     20px;
+    background-color:            transparent;
+    children:                    [ "message", "listview" ];
+}
+
+message {
+    enabled:                     true;
+    padding:                     10px;
+    border-radius:               8px;
+    background-color:            @background-alt;
+    text-color:                  @foreground;
+}
+
+textbox {
+    background-color:            transparent;
+    text-color:                  @foreground;
+    vertical-align:              0.5;
+    horizontal-align:            0.5;
+}
+
+listview {
+    enabled:                     true;
+    columns:                     2;
+    lines:                       1;
+    cycle:                       true;
+    dynamic:                     true;
+    scrollbar:                   false;
+    layout:                      vertical;
+    spacing:                     12px;
+    background-color:            transparent;
+    text-color:                  @foreground;
+    cursor:                      "default";
+}
+
+element {
+    enabled:                     true;
+    padding:                     10px 0px;
+    border-radius:               8px;
+    background-color:            @background-alt;
+    text-color:                  @foreground;
+    cursor:                      pointer;
+}
+
+element normal.normal {
+    background-color:            @background-alt;
+    text-color:                  @foreground;
+}
+
+element selected.normal {
+    background-color:            @selected;
+    text-color:                  @selected-text;
+}
+
+element-text {
+    font:                        "JetBrainsMono Nerd Font Bold 12";
+    background-color:            transparent;
+    text-color:                  inherit;
+    vertical-align:              0.5;
+    horizontal-align:            0.5;
+}

@@ -1,0 +1,16 @@
+/**
+ * Tokyo Night Color Palette for Rofi
+ **/
+
+* {
+    background:                  #1a1b26FF;
+    background-alt:              #24283bFF;
+    background-surface:          #16161eFF;
+    foreground:                  #c0caf5FF;
+    foreground-alt:              #a9b1d6FF;
+    selected:                    #7aa2f7FF;
+    selected-text:               #1a1b26FF;
+    active:                      #9ece6aFF;
+    urgent:                      #f7768eFF;
+    border-color:                #7aa2f7FF;
+}

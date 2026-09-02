@@ -1,0 +1,16 @@
+/**
+ * Catppuccin Mocha Color Palette for Rofi
+ **/
+
+* {
+    background:                  #1e1e2eFF;
+    background-alt:              #313244FF;
+    background-surface:          #181825FF;
+    foreground:                  #cdd6f4FF;
+    foreground-alt:              #a6adc8FF;
+    selected:                    #25c9c8FF;
+    selected-text:               #11111bFF;
+    active:                      #a6e3a1FF;
+    urgent:                      #f38ba8FF;
+    border-color:                #25c9c8FF;
+}
