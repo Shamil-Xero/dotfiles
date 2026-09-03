@@ -176,6 +176,10 @@ hl.bind("SUPER + mouse_up",   hl.dsp.focus({ workspace = "e-1" }))
 hl.bind("SUPER + S",         hl.dsp.workspace.toggle_special("scratchpad"))
 hl.bind("SUPER + SHIFT + S", hl.dsp.window.move({ workspace = "special:scratchpad", follow = false }))
 
+-- Lock Workspace
+hl.bind("SUPER + M", hl.dsp.exec_cmd("hyprlock"))
+
+
 --------------------------------------------------------------------------------
 -- 6. UTILITIES, TOOLS & SCRIPTS
 --------------------------------------------------------------------------------
