@@ -2,6 +2,18 @@
 ---- LOOK AND FEEL ----
 -----------------------
 
+-- Load generated theme colors (from theming system)
+-- Falls back to defaults if no theme has been applied yet
+local ok, Theme = pcall(require, "themes.colors")
+if not ok then
+    Theme = {
+        active_border_1 = "rgba(33ccffee)",
+        active_border_2 = "rgba(00ff99ee)",
+        inactive_border = "rgba(595959aa)",
+        shadow_color    = "rgba(1a1a1aee)",
+    }
+end
+
 -- Refer to https://wiki.hypr.land/Configuring/Basics/Variables/
 hl.config({
     general = {
@@ -11,8 +23,8 @@ hl.config({
         border_size = 2,
 
         col = {
-            active_border   = { colors = {"rgba(33ccffee)", "rgba(00ff99ee)"}, angle = 45 },
-            inactive_border = "rgba(595959aa)",
+            active_border   = { colors = {Theme.active_border_1, Theme.active_border_2}, angle = 45 },
+            inactive_border = Theme.inactive_border,
         },
 
         -- Set to true to enable resizing windows by clicking and dragging on borders and gaps

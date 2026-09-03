@@ -1,3 +1,6 @@
+/* Theme colors — auto-imported by theming system */
+@import 'colors.css';
+
 * {
   all: unset;
 
@@ -17,16 +20,16 @@
 
 window#waybar {
   background: transparent;
-  color: #d3c6aa;
+  color: @wb-fg;
 }
 
 tooltip {
-  background: rgba(43, 48, 59, 0.5);
-  border: 1px solid rgba(100, 114, 125, 0.5);
+  background: color-mix(in srgb, @wb-bg 80%, transparent);
+  border: 1px solid color-mix(in srgb, @wb-border 50%, transparent);
 }
 
 tooltip label {
-  color: white;
+  color: @wb-fg;
 }
 
 #workspaces {
@@ -38,7 +41,7 @@ tooltip label {
 }
 
 #workspaces button {
-  background-color: #2d2e2f;
+  background-color: @wb-bg;
   padding: 2px 4px;
   border-radius: 99px;
   margin: 4px;
@@ -49,22 +52,22 @@ tooltip label {
   font-weight: bold;
   font-size: 1rem;
   min-width: 36px;
-  background-color: #adb4b7;
+  background-color: @wb-active-ws;
 }
 
 .modules-center {
   margin: 5px;
   padding: 4px 10px;
   border-radius: 99px;
-  color: aliceblue;
-  background-color: #2d2e2f;
+  color: @wb-fg;
+  background-color: @wb-bg;
 }
 
 .modules-center:hover {
   /* margin: 5px;
   padding: 4px 10px;
   border-radius: 99px; */
-  color: rgb(50, 133, 206);
+  color: @wb-primary;
   background-color: #2d2e2f;
 }
 
@@ -92,7 +95,7 @@ tooltip label {
 }
 
 .modules-right>* :hover {
-  background: rgba(139, 182, 243, 0.15);
+  background: color-mix(in srgb, @wb-primary 15%, transparent);
   border-radius: 8px;
 }
 
@@ -144,5 +147,5 @@ tooltip label {
 }
 
 #custom-powermenu:hover {
-  background: rgba(243, 139, 168, 0.15);
+  background: color-mix(in srgb, @wb-urgent 15%, transparent);
 }
