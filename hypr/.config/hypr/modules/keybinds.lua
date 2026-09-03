@@ -200,7 +200,7 @@ hl.bind("SUPER + W", hl.dsp.exec_cmd("pkill -x waybar || waybar >/dev/null 2>&1 
 hl.bind("SUPER + SHIFT + W", hl.dsp.exec_cmd("/home/shamil/.config/hypr/scripts/random-wallpaper-switcher.sh"))
 
 -- Theme System
-hl.bind("SUPER + T",         hl.dsp.exec_cmd("bash /home/shamil/.config/rofi/scripts/theme-picker.sh"))
+hl.bind("SUPER + CONTROL_L + T", hl.dsp.exec_cmd("bash /home/shamil/.config/rofi/scripts/theme-picker.sh"))
 hl.bind("SUPER + SHIFT + T", hl.dsp.exec_cmd("bash /home/shamil/.config/rofi/scripts/wallpaper-picker.sh"))
 hl.bind("SUPER + ALT + T",   hl.dsp.exec_cmd("bash /home/shamil/.config/rofi/scripts/palette-picker.sh"))
 
