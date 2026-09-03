@@ -13,13 +13,13 @@ configuration {
     display-window:             "   Windows ";
     drun-display-format:        "{name}";
     window-format:              "{w} · {c} · {t}";
-    sidebar-mode:               false;e
+    sidebar-mode:               false;
     hover-select:               true;
-    me-select-entry:            "MousePrimary";s
+    me-select-entry:            "MousePrimary";
     me-accept-entry:            "MouseDPrimary";
     cycle:                      false;
     auto-select:                true;
-    terminal:                   kitty;
+    terminal:                   "kitty";
 }
 
 @theme "themes/launcher.rasi"
