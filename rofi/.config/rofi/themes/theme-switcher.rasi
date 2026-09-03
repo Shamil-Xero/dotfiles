@@ -1,0 +1,139 @@
+/**
+ * Theme Switcher Layout for Rofi
+ * Used by: wallpaper-picker.sh, palette-picker.sh, theme-picker.sh
+ **/
+
+@import "../colors/colors.rasi"
+
+* {
+    font:                        "JetBrainsMono Nerd Font 11";
+    background-color:            transparent;
+    text-color:                  @foreground;
+    margin:                      0px;
+    padding:                     0px;
+}
+
+window {
+    transparency:                "real";
+    location:                    center;
+    anchor:                      center;
+    fullscreen:                  false;
+    width:                       520px;
+
+    enabled:                     true;
+    border-radius:               16px;
+    border:                      2px solid;
+    border-color:                @border-color;
+    background-color:            @background;
+    cursor:                      "default";
+}
+
+mainbox {
+    enabled:                     true;
+    spacing:                     10px;
+    padding:                     20px;
+    background-color:            transparent;
+    children:                    [ "inputbar", "message", "listview" ];
+}
+
+inputbar {
+    enabled:                     true;
+    spacing:                     10px;
+    padding:                     12px 16px;
+    border-radius:               10px;
+    background-color:            @background-alt;
+    text-color:                  @foreground;
+    children:                    [ "prompt", "entry" ];
+}
+
+prompt {
+    enabled:                     true;
+    background-color:            inherit;
+    text-color:                  @selected;
+    font:                        "JetBrainsMono Nerd Font Bold 11";
+}
+
+entry {
+    enabled:                     true;
+    background-color:            inherit;
+    text-color:                  inherit;
+    cursor:                      text;
+    placeholder:                 "Search...";
+    placeholder-color:           @foreground-alt;
+}
+
+message {
+    enabled:                     true;
+    margin:                      0px;
+    padding:                     8px 14px;
+    border-radius:               8px;
+    background-color:            @background-surface;
+    text-color:                  @foreground-alt;
+}
+
+textbox {
+    background-color:            transparent;
+    text-color:                  @foreground-alt;
+    vertical-align:              0.5;
+    horizontal-align:            0.0;
+    highlight:                   none;
+    font:                        "JetBrainsMono Nerd Font 9";
+}
+
+listview {
+    enabled:                     true;
+    columns:                     1;
+    lines:                       8;
+    cycle:                       false;
+    dynamic:                     true;
+    scrollbar:                   false;
+    layout:                      vertical;
+    reverse:                     false;
+    fixed-height:                false;
+    fixed-columns:               true;
+    spacing:                     4px;
+    background-color:            transparent;
+    text-color:                  @foreground;
+    cursor:                      "default";
+}
+
+element {
+    enabled:                     true;
+    spacing:                     14px;
+    padding:                     10px 14px;
+    border-radius:               10px;
+    background-color:            transparent;
+    text-color:                  @foreground;
+    cursor:                      pointer;
+}
+
+element normal.normal {
+    background-color:            transparent;
+    text-color:                  @foreground;
+}
+
+element selected.normal {
+    background-color:            @selected;
+    text-color:                  @selected-text;
+}
+
+element normal.urgent {
+    background-color:            @urgent;
+    text-color:                  @background;
+}
+
+element-icon {
+    background-color:            transparent;
+    text-color:                  inherit;
+    size:                        28px;
+    cursor:                      inherit;
+}
+
+element-text {
+    background-color:            transparent;
+    text-color:                  inherit;
+    highlight:                   inherit;
+    cursor:                      inherit;
+    vertical-align:              0.5;
+    horizontal-align:            0.0;
+}
