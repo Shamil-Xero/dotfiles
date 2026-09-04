@@ -51,3 +51,4 @@ hermes/.hermes/*
 !hermes/.hermes/hooks/
 
 hypr/.config/hypr/scripts/snippets/*
+hypr/.config/hypr/hyprpaper.conf

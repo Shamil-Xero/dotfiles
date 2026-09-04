@@ -17,3 +17,5 @@ Theme = {
     inactive_border   = "rgba(24283b55)",
     shadow_color      = "rgba(1a1b26ee)",
 }
+
+return Theme

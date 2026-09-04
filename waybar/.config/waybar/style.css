@@ -24,8 +24,8 @@ window#waybar {
 }
 
 tooltip {
-  background: color-mix(in srgb, @wb-bg 80%, transparent);
-  border: 1px solid color-mix(in srgb, @wb-border 50%, transparent);
+  background: rgba(30, 30, 46, 0.85);
+  border: 1px solid rgba(100, 114, 125, 0.5);
 }
 
 tooltip label {
@@ -95,7 +95,7 @@ tooltip label {
 }
 
 .modules-right>* :hover {
-  background: color-mix(in srgb, @wb-primary 15%, transparent);
+  background: rgba(139, 182, 243, 0.15);
   border-radius: 8px;
 }
 
@@ -147,5 +147,5 @@ tooltip label {
 }
 
 #custom-powermenu:hover {
-  background: color-mix(in srgb, @wb-urgent 15%, transparent);
+  background: rgba(243, 139, 168, 0.15);
 }
