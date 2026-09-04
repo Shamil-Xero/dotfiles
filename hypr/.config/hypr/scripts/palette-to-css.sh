@@ -112,6 +112,8 @@ Theme = {
     inactive_border   = "$(hex_to_rgba "$BG_ALT_CSS" "55")",
     shadow_color      = "$(hex_to_rgba "$BG_CSS" "ee")",
 }
+
+return Theme
 EOF
 
 # ── Hyprlock ──────────────────────────────────────────────────────────────────
