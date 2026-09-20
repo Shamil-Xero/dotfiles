@@ -7,7 +7,6 @@
   font-family: Monospace, Helvetica, Arial, sans-serif;
   font-size: 0.8rem;
   min-height: 0;
-
   transition:
     background-color 150ms ease,
     color 150ms ease,
@@ -36,8 +35,7 @@ tooltip label {
   font-size: 0.3rem;
   padding: 4px 4px;
   color: white;
-  margin: 4px;
-  /* background-color: black; */
+  margin: 5px;
 }
 
 #workspaces button {
@@ -71,10 +69,9 @@ tooltip label {
   background-color: #2d2e2f;
 }
 
-#clock:hover {
-  color: rgb(50, 133, 206);
-  /* padding: 10px 20px; */
-  font-size: 1.1rem
+#clock {
+  padding: 2px;
+  font-size: 0.8rem
 }
 
 .modules-right {

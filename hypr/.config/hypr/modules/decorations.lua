@@ -39,7 +39,7 @@ hl.config({
         rounding_power = 2,
 
         -- Change transparency of focused and unfocused windows
-        active_opacity   = 0.95,
+        active_opacity   = 1,
         inactive_opacity = 0.8,
 
         shadow = {
@@ -96,4 +96,12 @@ hl.window_rule({
     class = "vivaldi-stable"
   },
   opacity = "0.9 override 0.8 override",
+})
+
+hl.window_rule({
+  name = "ChatGPT-blur",
+  match = {
+    title = ".*chatgpt.com.*"
+  },
+  opacity = "0.9 override",
 })
