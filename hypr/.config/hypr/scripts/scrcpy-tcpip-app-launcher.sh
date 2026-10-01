@@ -25,9 +25,9 @@
 #     # --no-vd-destroy-content \
 #     -x
 
-# Rofi
+# RofiZ
 
-DEVICE="10.127.191.116:5555"
+DEVICE="10.246.110.161:5555"
 DISPLAY_SIZE="2712x1220"
 
 # Get app list (name + package)
@@ -51,4 +51,5 @@ exec scrcpy \
     --new-display="$DISPLAY_SIZE" \
     --start-app="$PACKAGE" \
     --stay-awake \
+    --no-audio \
     --keep-active

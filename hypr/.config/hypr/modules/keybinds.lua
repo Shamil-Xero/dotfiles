@@ -103,7 +103,7 @@ hl.bind("SUPER + G", function()
     launch("brave-browser", { command = browser2 })
 end)
 
-hl.bind("SUPER + SHIFT + A", hl.dsp.exec_cmd(browser2))
+hl.bind("SUPER + SHIFT + G", hl.dsp.exec_cmd(browser2))
 
 hl.bind("SUPER + O", function()
     launch("md.obsidian.Obsidian", { command = "obsidian" })
