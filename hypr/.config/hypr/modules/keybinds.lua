@@ -7,7 +7,7 @@
 -- 1. PROGRAMS & VARIABLES
 --------------------------------------------------------------------------------
 local terminal    = "kitty"
-local fileManager = "dolphin"
+local fileManager = "nautilus -w"
 local menu        = "pkill rofi || rofi -show drun"
 local ide         = "code"
 local browser1    = "vivaldi --profile-directory=Default"
@@ -89,7 +89,7 @@ end
 hl.bind("SUPER + SUPER_L", hl.dsp.exec_cmd(menu), { release = true }) -- App launcher (Rofi)
 hl.bind("SUPER + TAB",     hl.dsp.exec_cmd("rofi -show window"))       -- Window switcher (Rofi)
 hl.bind("SUPER + T",       hl.dsp.exec_cmd(terminal))                  -- Terminal (Kitty)
-hl.bind("SUPER + E",       hl.dsp.exec_cmd(fileManager))               -- File Manager (Dolphin)
+hl.bind("SUPER + E",       hl.dsp.exec_cmd(fileManager))               -- File Manager (Nautilus)
 
 -- Apps (Smart Focus / Cycle / Launch)
 hl.bind("SUPER + A", function()
@@ -245,6 +245,9 @@ hl.bind("XF86AudioPrev",  hl.dsp.exec_cmd("playerctl previous"),   { locked = tr
 hl.bind("SUPER + HOME",              hl.dsp.exec_cmd("command -v hyprshutdown >/dev/null 2>&1 && hyprshutdown || hyprctl dispatch 'hl.dsp.exit()'"))
 hl.bind("CONTROL + SHIFT + ALT + D", hl.dsp.exec_cmd("shutdown now"))
 hl.bind("CONTROL + SHIFT + ALT + F", hl.dsp.exec_cmd("reboot"))
+
+-- Battery/Performance mode toggle (manual override)
+hl.bind("SUPER + ALT + B", hl.dsp.exec_cmd("bash ~/.config/hypr/scripts/battery-switch.sh toggle"))
 
 --------------------------------------------------------------------------------
 -- 10. MACROPAD BINDINGS (hs6209-2.4g-wireless-receiver)
