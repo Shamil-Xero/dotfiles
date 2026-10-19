@@ -50,5 +50,5 @@ hermes/.hermes/*
 !hermes/.hermes/kanban.db
 !hermes/.hermes/hooks/
 
-hypr/.config/hypr/scripts/snippets/*
-hypr/.config/hypr/hyprpaper.conf
+# hypr/.config/hypr/scripts/snippets/*
+# hypr/.config/hypr/hyprpaper.conf
