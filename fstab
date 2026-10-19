@@ -2,11 +2,12 @@
 # See fstab(5) for details.
 
 # <file system> <dir> <type> <options> <dump> <pass>
-# /dev/nvme1n1p2
-UUID=7d02c1c6-daf4-486a-9f8f-1d4ad7e8bf53	/         	btrfs     	rw,relatime,compress=zstd:3,ssd,discard=async,space_cache=v2,subvol=/	0 0
+# /dev/nvme0n1p2
+UUID=21cb1762-1283-4268-a51e-437515915fc9	/         	btrfs     	rw,relatime,compress=zstd:3,ssd,discard=async,space_cache=v2,subvol=/	0 0
 
-# /dev/nvme1n1p1
-UUID=6A33-7C07      	/boot     	vfat      	rw,relatime,fmask=0077,dmask=0077,codepage=437,iocharset=ascii,shortname=mixed,utf8,errors=remount-ro	0 2
+# /dev/nvme0n1p1
+UUID=2275-A234      	/boot     	vfat      	rw,relatime,fmask=0177,dmask=0077,codepage=437,iocharset=ascii,shortname=mixed,utf8,errors=remount-ro	0 2
 
-# Windows D
-UUID=8A1ADCA51ADC8F95  /mnt/d  ntfs3  defaults,uid=1000,gid=1000,fmask=0000,dmask=0000 0 0
+# /dev/nvme0n1p3
+UUID=59e49c02-3511-45b2-9bb4-ef32a1f841ab	/home     	btrfs     	rw,relatime,compress=zstd:3,ssd,discard=async,space_cache=v2,subvol=/	0 0
+
