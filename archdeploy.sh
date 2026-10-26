@@ -505,11 +505,17 @@ echo -e "${CYAN}${BOLD}  Deploying...                                           
 echo -e "${CYAN}${BOLD}══════════════════════════════════════════════════════════════${NC}"
 echo ""
 
-# Cache sudo credentials upfront so they don't interrupt spinners mid-run
+# Cache sudo credentials upfront and keep them alive for the entire deployment
 if ! $DRY_RUN; then
-    echo -e "  ${DIM}Enter sudo password to cache credentials for the deployment:${NC}"
+    echo -e "  ${DIM}Enter sudo password once to cache credentials for the entire deployment:${NC}"
     sudo -v
     echo ""
+    # Keep-alive: refresh sudo timestamp every 55 seconds in the background
+    ( while true; do sudo -n true; sleep 55; done ) &
+    _SUDO_KEEPALIVE_PID=$!
+    disown "$_SUDO_KEEPALIVE_PID" 2>/dev/null || true
+    # Kill the keep-alive when the script exits
+    trap 'kill "$_SUDO_KEEPALIVE_PID" 2>/dev/null || true; _cleanup_spinner' EXIT INT TERM
 fi
 
 # Track totals for summary
@@ -552,20 +558,28 @@ fi
 # ── [3/7] Install Packages ───────────────────────────────────────
 step "  [3/7] ▸ Installing packages..."
 
+# Count how many categories are selected for progress display
+_pkg_total=0
+for i in "${!PACKAGE_CATEGORIES[@]}"; do
+    [[ "${pkg_selected[$i]}" == "1" ]] && (( _pkg_total++ )) || true
+done
+_pkg_idx=0
+
 for i in "${!PACKAGE_CATEGORIES[@]}"; do
     cat="${PACKAGE_CATEGORIES[$i]}"
     if [[ "${pkg_selected[$i]}" == "1" ]]; then
+        (( _pkg_idx++ )) || true
         pkg_file="$DOTFILES_DIR/packages/${cat}.txt"
         if [[ -f "$pkg_file" ]]; then
             # Read packages, skip comments and empty lines
             packages=$(grep -v '^#\|^$' "$pkg_file" | tr '\n' ' ')
             count=$(echo "$packages" | wc -w)
-            
-            if run_spinner "Installing ${cat} (${count} packages)..." "paru -S --needed --noconfirm --ask=4 $packages"; then
-                success "${cat} — ${count} packages installed"
+
+            if run_spinner "[${_pkg_idx}/${_pkg_total}] Installing ${cat} (${count} pkgs)..." "paru -S --needed --noconfirm --ask=4 $packages"; then
+                success "[${_pkg_idx}/${_pkg_total}] ${cat} — ${count} packages installed"
                 installed_pkg_count=$(( installed_pkg_count + count )) || true
             else
-                fail "${cat} — some packages may have failed"
+                fail "[${_pkg_idx}/${_pkg_total}] ${cat} — some packages may have failed"
                 ((errors++)) || true
             fi
         else
@@ -577,16 +591,24 @@ done
 # ── [4/7] Symlink Configs ────────────────────────────────────────
 step "  [4/7] ▸ Symlinking configurations..."
 
+# Count how many stow packages are selected for progress display
+_stow_total=0
+for i in "${!STOW_PACKAGES[@]}"; do
+    [[ "${stow_selected[$i]}" == "1" ]] && (( _stow_total++ )) || true
+done
+_stow_idx=0
+
 for i in "${!STOW_PACKAGES[@]}"; do
     pkg="${STOW_PACKAGES[$i]}"
     if [[ "${stow_selected[$i]}" == "1" ]]; then
+        (( _stow_idx++ )) || true
         pkg_dir="$DOTFILES_DIR/$pkg"
         if [[ -d "$pkg_dir" ]]; then
-            if run_spinner "Symlinking ${pkg}..." "stow -d '$DOTFILES_DIR' -t '$HOME' --adopt '$pkg'"; then
-                success "${pkg} — symlinked"
+            if run_spinner "[${_stow_idx}/${_stow_total}] Symlinking ${pkg}..." "stow -d '$DOTFILES_DIR' -t '$HOME' --adopt '$pkg'"; then
+                success "[${_stow_idx}/${_stow_total}] ${pkg} — symlinked"
                 ((linked_config_count++)) || true
             else
-                fail "${pkg} — stow failed (conflicts?)"
+                fail "[${_stow_idx}/${_stow_total}] ${pkg} — stow failed (conflicts?)"
                 ((errors++)) || true
             fi
         else
@@ -711,11 +733,15 @@ fi
 # Flatpak restore
 if $restore_flatpak; then
     if command -v flatpak &>/dev/null || $DRY_RUN; then
+        # Pre-count Flatpak apps for progress display
+        _fp_total=$(grep -cv '^#\|^$' "$flatpak_file" 2>/dev/null || echo 0)
+        _fp_idx=0
         while IFS= read -r app_id; do
             [[ "$app_id" =~ ^#.*$ || -z "$app_id" ]] && continue
-            run_spinner "Installing Flatpak: ${app_id}..." "flatpak install -y flathub '$app_id'" || true
+            (( _fp_idx++ )) || true
+            run_spinner "[${_fp_idx}/${_fp_total}] Flatpak: ${app_id}..." "flatpak install -y flathub '$app_id'" || true
         done < "$flatpak_file"
-        success "Flatpak apps restored"
+        success "Flatpak apps restored (${_fp_idx}/${_fp_total})"
     else
         warn "flatpak not installed, skipping"
     fi

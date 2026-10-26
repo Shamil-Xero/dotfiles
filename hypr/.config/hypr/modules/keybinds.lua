@@ -7,7 +7,8 @@
 -- 1. PROGRAMS & VARIABLES
 --------------------------------------------------------------------------------
 local terminal    = "kitty"
-local fileManager = "nautilus -w"
+-- local fileManager = "nautilus -w"
+local fileManager = "dolphin"
 local menu        = "pkill rofi || rofi -show drun"
 local ide         = "code"
 local browser1    = "vivaldi --profile-directory=Default"
